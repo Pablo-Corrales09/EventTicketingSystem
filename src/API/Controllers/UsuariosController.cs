@@ -1,9 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using API.Data;
+using API.Dtos;
 using API.Models;
 
-namespace API.Controller
+namespace API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
@@ -18,35 +19,61 @@ namespace API.Controller
 
         //GET: api/usuarios
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Usuario>>> GetUsuarios()
+        public async Task<ActionResult<IEnumerable<UsuarioDto>>> GetUsuarios()
         {
-            return await _context.Usuarios.ToListAsync();
+            return await _context.Usuarios
+                .Select(u => new UsuarioDto {
+                    IdUsuario = u.IdUsuario,
+                    Nombre = u.Nombre,
+                    Apellido = u.Apellido,
+                    Correo = u.Correo,
+                    Telefono = u.Telefono,
+                    NombreRole = u.IdRoleNavigation != null ? u.IdRoleNavigation.NombreRole : null
+                })
+                .ToListAsync();
         }
 
         // GET: api/Usuarios/5
         [HttpGet("{id}")]
-        public async Task<ActionResult<Usuario>> GetUsuario(int id)
+        public async Task<ActionResult<UsuarioDto>> GetUsuario(int id)
         {
-            var usuario = await _context.Usuarios.FindAsync(id);
+            var usuarioDto = await _context.Usuarios
+                .Where(u => u.IdUsuario == id)
+                .Select(u => new UsuarioDto {
+                    IdUsuario = u.IdUsuario,
+                    Nombre = u.Nombre,
+                    Apellido = u.Apellido,
+                    Correo = u.Correo,
+                    Telefono = u.Telefono,
+                    NombreRole = u.IdRoleNavigation != null ? u.IdRoleNavigation.NombreRole : null
+                })
+                .FirstOrDefaultAsync();
 
-            if (usuario == null)
-            {
-                return NotFound();
-            }
+            if (usuarioDto == null) return NotFound();
 
-            return usuario;
+            return usuarioDto;
         }
 
-        [HttpGet("buscar")]
-        public async Task<ActionResult<Usuario>> BuscarPorCorreo([FromQuery] string correo)
+        // GET: api/Usuarios/buscarCorreo?correo=...
+        [HttpGet("buscarCorreo")]
+        public async Task<ActionResult<UsuarioDto>> BuscarPorCorreo([FromQuery] string correo)
         {
-            var usuario = await _context.Usuarios.FirstOrDefaultAsync(u => u.Correo == correo);
+            var usuarioDto = await _context.Usuarios
+                .Where(u => u.Correo == correo)
+                .Select(u => new UsuarioDto {
+                    IdUsuario = u.IdUsuario,
+                    Nombre = u.Nombre,
+                    Apellido = u.Apellido,
+                    Correo = u.Correo,
+                    Telefono = u.Telefono,
+                    NombreRole = u.IdRoleNavigation != null ? u.IdRoleNavigation.NombreRole : null
+                })
+                .FirstOrDefaultAsync();
             
-            if (usuario == null) return NotFound();
+            if (usuarioDto == null) return NotFound();
             
-            return usuario;
+            return usuarioDto;
         }
-
 
     }
 }
