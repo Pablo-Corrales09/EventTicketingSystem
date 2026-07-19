@@ -28,6 +28,8 @@ public partial class DbDevTicketappContext : DbContext
 
     public virtual DbSet<MedioPago> MedioPagos { get; set; }
 
+    public virtual DbSet<Role> Roles { get; set; }
+
     public virtual DbSet<SedeEvento> SedeEventos { get; set; }
 
     public virtual DbSet<Usuario> Usuarios { get; set; }
@@ -177,6 +179,18 @@ public partial class DbDevTicketappContext : DbContext
                 .HasColumnName("nombre_medio_pago");
         });
 
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.HasKey(e => e.IdRole);
+
+            entity.ToTable("role");
+
+            entity.Property(e => e.IdRole).HasColumnName("id_role");
+            entity.Property(e => e.NombreRole)
+                .HasMaxLength(50)
+                .HasColumnName("nombre_role");
+        });
+
         modelBuilder.Entity<SedeEvento>(entity =>
         {
             entity.HasKey(e => e.IdSedeEvento);
@@ -212,9 +226,20 @@ public partial class DbDevTicketappContext : DbContext
                 .HasDefaultValueSql("(getdate())")
                 .HasColumnType("datetime")
                 .HasColumnName("fecha_creacion");
+            entity.Property(e => e.IdRole).HasColumnName("id_role");
             entity.Property(e => e.Nombre)
                 .HasMaxLength(50)
                 .HasColumnName("nombre");
+            entity.Property(e => e.PasswordHash)
+                .HasDefaultValue("")
+                .HasColumnName("password_hash");
+            entity.Property(e => e.Telefono)
+                .HasMaxLength(20)
+                .HasColumnName("telefono");
+
+            entity.HasOne(d => d.IdRoleNavigation).WithMany(p => p.Usuarios)
+                .HasForeignKey(d => d.IdRole)
+                .HasConstraintName("FK_usuario_role");
         });
 
         OnModelCreatingPartial(modelBuilder);

@@ -69,10 +69,16 @@ GO
 
 -----------------------------CONSULTA DE LAS TABLAS--------------------------------------
 
+--Consulta para obtener los nombre de los roles.
+SELECT nombre_role FROM role;
+
 --Consulta para obtener la información completa de los usuarios.
-SELECT nombre + ' ' + apellido AS 'Nombre completo',
-correo AS 'Correo electronico'
-FROM usuario;
+SELECT u.nombre + ' ' + u.apellido AS 'Nombre completo',
+u.correo AS 'Correo electronico',
+u.telefono,
+r.nombre_role AS 'Rol'
+FROM usuario u
+INNER JOIN role r ON u.id_role = r.id_role;
 GO
 
 -- Consulta para obtener los nombres de los medios de pago.

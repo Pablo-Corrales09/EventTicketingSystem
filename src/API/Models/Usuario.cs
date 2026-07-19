@@ -15,7 +15,15 @@ public partial class Usuario
 
     public DateTime? FechaCreacion { get; set; }
 
+    public string? Telefono { get; set; }
+
+    public string PasswordHash { get; set; } = null!;
+
+    public int? IdRole { get; set; }
+
     public virtual ICollection<Boleto> Boletos { get; set; } = new List<Boleto>();
 
     public virtual ICollection<Factura> Facturas { get; set; } = new List<Factura>();
+
+    public virtual Role? IdRoleNavigation { get; set; }
 }
