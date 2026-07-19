@@ -1,19 +1,20 @@
 using Microsoft.EntityFrameworkCore;
-using API.Data; // Ajusta según el namespace real de tu carpeta Data
+using API.Data;
+using API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// 1. Agregar servicios al contenedor
-builder.Services.AddControllers(); // Habilita el uso de controladores
-builder.Services.AddOpenApi(); // Esto mantiene el soporte de OpenAPI que ya tenías
+builder.Services.AddControllers(); 
+builder.Services.AddOpenApi(); 
 
-// 2. Registrar el DbContext con la cadena de conexión de tus secrets
 builder.Services.AddDbContext<DbDevTicketappContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+builder.Services.AddScoped<UserService>();
+
 var app = builder.Build();
 
-// 3. Configurar el pipeline
+
 if (app.Environment.IsDevelopment())
 {
     app.MapOpenApi();
@@ -21,7 +22,6 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// 4. Mapear los controladores
 app.MapControllers(); 
 
 app.Run();
