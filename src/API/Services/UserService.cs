@@ -1,5 +1,6 @@
 using API.Data;
 using API.Dtos;
+using API.Models;
 using Microsoft.EntityFrameworkCore;
 
 
@@ -50,6 +51,35 @@ namespace API.Services
             .Where (u => u.Correo == correo)
             .Select(u => MapearUsuarioDto(u))
             .FirstOrDefaultAsync();
+        }
+
+
+        public async Task<UsuarioDto?> CrearUsuario(string nombre, string apellido, string? contacto, string correo, string contrasena, int? id_role)
+        {
+            string passwordHash = BCrypt.Net.BCrypt.HashPassword(contrasena);
+            var nuevoUsuario = new Usuario{
+                Nombre = nombre,
+                Apellido = apellido,
+                Telefono = contacto,
+                Correo = correo,
+                PasswordHash = passwordHash,
+                IdRole = 2                
+            };
+
+            _context.Add(nuevoUsuario);
+            await _context.SaveChangesAsync();
+
+            var usuarioDto = new UsuarioDto
+            {
+                IdUsuario = nuevoUsuario.IdUsuario,
+                Nombre = nuevoUsuario.Nombre,
+                Apellido = nuevoUsuario.Apellido,
+                Telefono = nuevoUsuario.Telefono,
+                Correo = nuevoUsuario.Correo,
+                IdRole = nuevoUsuario.IdRole
+            };
+
+            return usuarioDto;
         }
     }
 
