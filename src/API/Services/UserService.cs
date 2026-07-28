@@ -54,8 +54,15 @@ namespace API.Services
         }
 
 
-        public async Task<UsuarioDto?> CrearUsuario(string nombre, string apellido, string? contacto, string correo, string contrasena, int? id_role)
+        public async Task<UsuarioDto> CrearUsuario(string nombre, string apellido, string? contacto, string correo, string contrasena, int? id_role)
         {
+            var existe = await _context.Usuarios.AnyAsync(u => u.Correo == correo);
+            if (existe)
+            {
+                throw new InvalidOperationException("El correo electronico ya esta registrado");
+            }
+
+
             string passwordHash = BCrypt.Net.BCrypt.HashPassword(contrasena);
             var nuevoUsuario = new Usuario{
                 Nombre = nombre,
@@ -63,7 +70,7 @@ namespace API.Services
                 Telefono = contacto,
                 Correo = correo,
                 PasswordHash = passwordHash,
-                IdRole = 2                
+                IdRole = id_role ?? 2                
             };
 
             _context.Add(nuevoUsuario);

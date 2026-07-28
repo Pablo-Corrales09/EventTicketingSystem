@@ -46,13 +46,8 @@ namespace API.Controllers
                 request.Contrasena, 
                 request.IdRole
             );
-
-            if (usuarioCreado == null)
-            {
-                return BadRequest("No se pudo registrar el usuario. Verifica los datos enviados."); 
-            }
-
+            
             return CreatedAtAction(nameof(GetUsuario), new { id = usuarioCreado.IdUsuario }, usuarioCreado);
-            }
+        }
     }
 }

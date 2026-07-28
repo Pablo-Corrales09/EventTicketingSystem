@@ -1,10 +1,22 @@
+CREATE TABLE role (
+    id_role INT IDENTITY(1,1),
+    nombre_role NVARCHAR(50) NOT NULL,
+    CONSTRAINT PK_role PRIMARY KEY (id_role)
+);
+GO
+
+
 CREATE TABLE usuario (
     id_usuario INT IDENTITY(1,1),
     nombre NVARCHAR(50) NOT NULL,
     apellido NVARCHAR(50) NOT NULL,
     correo VARCHAR(100) NOT NULL UNIQUE,
+    telefono NVARCHAR(20) NULL,
+    password_hash NVARCHAR(MAX) NOT NULL,
+    id_role INT NULL,
     fecha_creacion DATETIME DEFAULT GETDATE(),
-    CONSTRAINT PK_usuario PRIMARY KEY (id_usuario)
+    CONSTRAINT PK_usuario PRIMARY KEY (id_usuario),
+    CONSTRAINT FK_usuario_role FOREIGN KEY (id_role) REFERENCES role (id_role)
 );
 GO
 

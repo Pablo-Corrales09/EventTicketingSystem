@@ -14,6 +14,33 @@ builder.Services.AddScoped<UserService>();
 
 var app = builder.Build();
 
+app.Use(async (context, next) =>
+{
+    try
+    {
+        await next();
+    }
+    catch (Exception ex)
+    {
+        context.Response.ContentType = "application/json";
+
+        var (statusCode, mensaje) = ex switch
+        {
+            // Errores de negocio como correo duplicado, sin boletos, etc. -> HTTP 400
+            InvalidOperationException => (StatusCodes.Status400BadRequest, ex.Message),
+            
+          
+            KeyNotFoundException => (StatusCodes.Status404NotFound, ex.Message),
+            
+            _ => (StatusCodes.Status500InternalServerError, "Ocurrió un error interno en el servidor.")
+        };
+
+        context.Response.StatusCode = statusCode;
+        await context.Response.WriteAsJsonAsync(new { error = mensaje });
+    }
+});
+
+
 
 if (app.Environment.IsDevelopment())
 {
