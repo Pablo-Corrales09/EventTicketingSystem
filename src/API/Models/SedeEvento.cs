@@ -11,5 +11,7 @@ public partial class SedeEvento
 
     public string Ubicacion { get; set; } = null!;
 
+    public virtual ICollection<Evento> Eventos { get; set; } = new List<Evento>();
+
     public virtual ICollection<Localidad> Localidads { get; set; } = new List<Localidad>();
 }

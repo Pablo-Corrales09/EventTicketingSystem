@@ -13,5 +13,9 @@ public partial class Evento
 
     public TimeOnly HoraEvento { get; set; }
 
+    public int? IdSede{ get; set; }
+
+    public virtual SedeEvento? IdSedeNavigation { get; set; }
+
     public virtual ICollection<EventoLocalidad> EventoLocalidads { get; set; } = new List<EventoLocalidad>();
 }

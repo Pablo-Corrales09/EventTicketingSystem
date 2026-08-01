@@ -6,26 +6,11 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace API.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialMigration : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.CreateTable(
-                name: "evento",
-                columns: table => new
-                {
-                    id_evento = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    nombre_evento = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    fecha_evento = table.Column<DateTime>(type: "datetime", nullable: false),
-                    hora_evento = table.Column<TimeOnly>(type: "time", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_evento", x => x.id_evento);
-                });
-
             migrationBuilder.CreateTable(
                 name: "medio_pago",
                 columns: table => new
@@ -37,6 +22,19 @@ namespace API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_medio_pago", x => x.id_medio_pago);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "role",
+                columns: table => new
+                {
+                    id_role = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    nombre_role = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_role", x => x.id_role);
                 });
 
             migrationBuilder.CreateTable(
@@ -62,13 +60,41 @@ namespace API.Migrations
                     nombre = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     apellido = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
                     correo = table.Column<string>(type: "varchar(100)", unicode: false, maxLength: 100, nullable: false),
-                    Telefono = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Role = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    fecha_creacion = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())")
+                    fecha_creacion = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
+                    telefono = table.Column<string>(type: "nvarchar(20)", maxLength: 20, nullable: true),
+                    password_hash = table.Column<string>(type: "nvarchar(max)", nullable: false, defaultValue: ""),
+                    id_role = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_usuario", x => x.id_usuario);
+                    table.ForeignKey(
+                        name: "FK_usuario_role",
+                        column: x => x.id_role,
+                        principalTable: "role",
+                        principalColumn: "id_role");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "evento",
+                columns: table => new
+                {
+                    id_evento = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    nombre_evento = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    fecha_evento = table.Column<DateTime>(type: "datetime", nullable: false),
+                    hora_evento = table.Column<TimeOnly>(type: "time", nullable: false),
+                    IdSede = table.Column<int>(type: "int", nullable: true),
+                    SedeNavigationIdSedeEvento = table.Column<int>(type: "int", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_evento", x => x.id_evento);
+                    table.ForeignKey(
+                        name: "FK_evento_sede_evento_SedeNavigationIdSedeEvento",
+                        column: x => x.SedeNavigationIdSedeEvento,
+                        principalTable: "sede_evento",
+                        principalColumn: "id_sede_evento");
                 });
 
             migrationBuilder.CreateTable(
@@ -197,6 +223,11 @@ namespace API.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "IX_evento_SedeNavigationIdSedeEvento",
+                table: "evento",
+                column: "SedeNavigationIdSedeEvento");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_evento_localidad_id_evento",
                 table: "evento_localidad",
                 column: "id_evento");
@@ -226,6 +257,11 @@ namespace API.Migrations
                 name: "IX_localidad_id_sede_evento",
                 table: "localidad",
                 column: "id_sede_evento");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_usuario_id_role",
+                table: "usuario",
+                column: "id_role");
 
             migrationBuilder.CreateIndex(
                 name: "UQ__usuario__2A586E0B492B5F82",
@@ -260,6 +296,9 @@ namespace API.Migrations
 
             migrationBuilder.DropTable(
                 name: "sede_evento");
+
+            migrationBuilder.DropTable(
+                name: "role");
         }
     }
 }

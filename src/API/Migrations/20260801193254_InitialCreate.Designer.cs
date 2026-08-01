@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace API.Migrations
 {
     [DbContext(typeof(DbDevTicketappContext))]
-    [Migration("20260719145725_InitialMigration")]
-    partial class InitialMigration
+    [Migration("20260801193254_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -89,13 +89,21 @@ namespace API.Migrations
                         .HasColumnType("time")
                         .HasColumnName("hora_evento");
 
+                    b.Property<int?>("IdSede")
+                        .HasColumnType("int");
+
                     b.Property<string>("NombreEvento")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("nvarchar(100)")
                         .HasColumnName("nombre_evento");
 
+                    b.Property<int?>("SedeNavigationIdSedeEvento")
+                        .HasColumnType("int");
+
                     b.HasKey("IdEvento");
+
+                    b.HasIndex("SedeNavigationIdSedeEvento");
 
                     b.ToTable("evento", (string)null);
                 });
@@ -225,6 +233,26 @@ namespace API.Migrations
                     b.ToTable("medio_pago", (string)null);
                 });
 
+            modelBuilder.Entity("API.Models.Role", b =>
+                {
+                    b.Property<int>("IdRole")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasColumnName("id_role");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("IdRole"));
+
+                    b.Property<string>("NombreRole")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("nombre_role");
+
+                    b.HasKey("IdRole");
+
+                    b.ToTable("role", (string)null);
+                });
+
             modelBuilder.Entity("API.Models.SedeEvento", b =>
                 {
                     b.Property<int>("IdSedeEvento")
@@ -279,19 +307,31 @@ namespace API.Migrations
                         .HasColumnName("fecha_creacion")
                         .HasDefaultValueSql("(getdate())");
 
+                    b.Property<int?>("IdRole")
+                        .HasColumnType("int")
+                        .HasColumnName("id_role");
+
                     b.Property<string>("Nombre")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)")
                         .HasColumnName("nombre");
 
-                    b.Property<string>("Role")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<string>("PasswordHash")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("nvarchar(max)")
+                        .HasDefaultValue("")
+                        .HasColumnName("password_hash");
 
                     b.Property<string>("Telefono")
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("telefono");
 
                     b.HasKey("IdUsuario");
+
+                    b.HasIndex("IdRole");
 
                     b.HasIndex(new[] { "Correo" }, "UQ__usuario__2A586E0B492B5F82")
                         .IsUnique();
@@ -324,6 +364,15 @@ namespace API.Migrations
                     b.Navigation("IdFacturaNavigation");
 
                     b.Navigation("IdUsuarioNavigation");
+                });
+
+            modelBuilder.Entity("API.Models.Evento", b =>
+                {
+                    b.HasOne("API.Models.SedeEvento", "SedeNavigation")
+                        .WithMany()
+                        .HasForeignKey("SedeNavigationIdSedeEvento");
+
+                    b.Navigation("SedeNavigation");
                 });
 
             modelBuilder.Entity("API.Models.EventoLocalidad", b =>
@@ -375,6 +424,16 @@ namespace API.Migrations
                     b.Navigation("IdSedeEventoNavigation");
                 });
 
+            modelBuilder.Entity("API.Models.Usuario", b =>
+                {
+                    b.HasOne("API.Models.Role", "IdRoleNavigation")
+                        .WithMany("Usuarios")
+                        .HasForeignKey("IdRole")
+                        .HasConstraintName("FK_usuario_role");
+
+                    b.Navigation("IdRoleNavigation");
+                });
+
             modelBuilder.Entity("API.Models.Evento", b =>
                 {
                     b.Navigation("EventoLocalidads");
@@ -398,6 +457,11 @@ namespace API.Migrations
             modelBuilder.Entity("API.Models.MedioPago", b =>
                 {
                     b.Navigation("Facturas");
+                });
+
+            modelBuilder.Entity("API.Models.Role", b =>
+                {
+                    b.Navigation("Usuarios");
                 });
 
             modelBuilder.Entity("API.Models.SedeEvento", b =>

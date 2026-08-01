@@ -89,6 +89,10 @@ public partial class DbDevTicketappContext : DbContext
             entity.Property(e => e.NombreEvento)
                 .HasMaxLength(100)
                 .HasColumnName("nombre_evento");
+
+            entity.HasOne(d => d.IdSedeNavigation).WithMany(p => p.Eventos)
+                .HasForeignKey(d => d.IdSede)
+                .HasConstraintName("FK_evento_sede_evento");
         });
 
         modelBuilder.Entity<EventoLocalidad>(entity =>

@@ -2,7 +2,6 @@ using API.Data;
 using API.Dtos;
 using API.Models;
 using Microsoft.EntityFrameworkCore;
-
 namespace API.Services
 {
     public class EventoService
@@ -12,45 +11,66 @@ namespace API.Services
         public EventoService(DbDevTicketappContext context)
         {
             _context = context;
+        }    
+
+        //Función para obtener los eventos de la DB y maperalos a un EventoDto, sin incluír la información de las localidades asociadas al evento.
+            public async Task<List<EventoDto>> ObtenerTodosLosEventosAsync()
+        {
+            var eventos = await _context.Eventos
+            .ToListAsync();
+            return eventos.Select(e => MapearEventoLocalidadDto(e)).ToList();
         }
 
-        private static EventoDto MapearEventoDto(Models.Evento e)
+        //Método auxiliar para evitar la duplicación de código al mapear un objeto Evento a EventoDto
+        private static EventoDto MapearEventoLocalidadDto(Models.Evento e)
         {
             return new EventoDto
             {
                 IdEvento = e.IdEvento,
                 NombreEvento = e.NombreEvento,
                 FechaEvento = e.FechaEvento,
+                HoraEvento = e.HoraEvento,                    
+            };
+
+        }
+
+        //Función para obtener los eventos de la DB y maperalos a un EventoSedeDto, incluyendo la información de la sede asociada al evento.
+            public async Task<List<EventoSedeDto>> ObtenerEventosSedeAsync()
+        {
+            var eventos = await _context.Eventos
+            .Include(e => e.IdSedeNavigation)
+            .ToListAsync();
+            return eventos.Select(e => MapearEventoSedeDto(e)).ToList();
+        }
+
+        //Método auxiliar para evitar la duplicación de código al mapear un objeto Evento a EventoSedeDto
+        private static EventoSedeDto MapearEventoSedeDto(Models.Evento e)
+        {
+            return new EventoSedeDto
+            {
+                IdEvento = e.IdEvento,
+                NombreEvento = e.NombreEvento,
+                FechaEvento = e.FechaEvento,
                 HoraEvento = e.HoraEvento,
-                Localidades = e.EventoLocalidads != null 
-            ? e.EventoLocalidads.Select(el => new LocalidadDto 
-              {
-                  IdLocalidad = el.IdLocalidad,
-                  NombreLocalidad = el.IdLocalidadNavigation != null ? el.IdLocalidadNavigation.NombreLocalidad : string.Empty,
-                  
-                  EventoLocalidades = new List<EventoLocalidadDto>
-                  {
-                      new EventoLocalidadDto
-                      {
-                        IdEventoLocalidad = el.IdEventoLocalidad, 
-                        IdEvento = el.IdEvento,                   
-                        IdLocalidad = el.IdLocalidad,
-                        Precio = el.Precio, 
-                        CapacidadDisponible = el.CapacidadDisponible 
-                      }
-                  }
-                    }).ToList()
-                : new List<LocalidadDto>()
+                Sede = e.IdSedeNavigation != null ? new SedeUbicacionSimpleDto
+                {
+                    IdSedeEvento = e.IdSedeNavigation.IdSedeEvento,
+                    NombreSedeEvento = e.IdSedeNavigation.NombreSedeEvento,
+                    Ubicacion = e.IdSedeNavigation.Ubicacion
+                } : null,
             };
         }
 
-        public async Task<List<EventoDto>> ObtenerTodosLosEventosAsync()
+
+
+
+/*  public async Task<List<EventoDto>> ObtenerTodosLosEventosAsync()
         {
             var eventos = await _context.Eventos
             .Include (e => e.EventoLocalidads)
             .ThenInclude(el => el.IdLocalidadNavigation)
             .ToListAsync();
             return eventos.Select(e => MapearEventoDto(e)).ToList();
-        }
+        }*/      
     }
 }

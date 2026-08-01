@@ -41,6 +41,25 @@ VALUES
 ('Saprissa vs Liga deportiva Alajuelense', '2024-10-20', '18:00:00');
 GO
 
+-- Asignar la Sede 1 a los eventos con ID 1 y 2
+UPDATE evento 
+SET IdSede = 1 
+WHERE id_evento IN (1, 2);
+GO
+-- Asignar la Sede 2 a los eventos con ID 3 y 4
+UPDATE evento 
+SET IdSede = 2 
+WHERE id_evento IN (3, 4);
+GO
+
+SELECT * FROM evento;
+
+UPDATE sede_evento 
+SET ubicacion = 'La Sabana, San José' -- (O el texto de ubicación que prefieras)
+WHERE id_sede_evento = 1;
+GO
+
+SELECT * FROM sede_evento;
 INSERT INTO evento_localidad(id_evento, id_localidad, precio, capacidad_disponible)
 VALUES
 (1, 1, 50000.00, 100),

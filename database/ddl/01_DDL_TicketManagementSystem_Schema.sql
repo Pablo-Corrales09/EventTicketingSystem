@@ -44,6 +44,17 @@ CREATE TABLE evento(
 );
 GO
 
+SELECT * FROM evento;
+
+ALTER TABLE evento
+ADD IdSede INT NULL;
+
+ALTER TABLE evento
+ADD CONSTRAINT FK_evento_sede_evento 
+FOREIGN KEY (IdSede) 
+REFERENCES sede_evento(id_sede_evento);
+GO
+
 CREATE TABLE localidad(
     id_localidad INT IDENTITY(1,1),
     nombre_localidad NVARCHAR(100) NOT NULL,
