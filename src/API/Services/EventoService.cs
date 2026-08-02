@@ -1,6 +1,5 @@
 using API.Data;
 using API.Dtos;
-using API.Models;
 using Microsoft.EntityFrameworkCore;
 namespace API.Services
 {
@@ -43,6 +42,16 @@ namespace API.Services
             return eventos.Select(e => MapearEventoSedeDto(e)).ToList();
         }
 
+        //Función para obtener un evento por su ID de la DB y mapearlo a un EventoSedeDto, incluyendo la información de la sede asociada al evento.
+        public async Task<EventoSedeDto?> ObtenerEventoSedePorIdAsync(int id)
+        {
+            return await _context.Eventos
+            .Where(e => e.IdEvento == id)
+            .Include(e => e.IdSedeNavigation)
+            .Select(e => MapearEventoSedeDto(e))
+            .FirstOrDefaultAsync();
+        }
+
         //Método auxiliar para evitar la duplicación de código al mapear un objeto Evento a EventoSedeDto
         private static EventoSedeDto MapearEventoSedeDto(Models.Evento e)
         {
@@ -61,16 +70,6 @@ namespace API.Services
             };
         }
 
-
-
-
-/*  public async Task<List<EventoDto>> ObtenerTodosLosEventosAsync()
-        {
-            var eventos = await _context.Eventos
-            .Include (e => e.EventoLocalidads)
-            .ThenInclude(el => el.IdLocalidadNavigation)
-            .ToListAsync();
-            return eventos.Select(e => MapearEventoDto(e)).ToList();
-        }*/      
+     
     }
 }

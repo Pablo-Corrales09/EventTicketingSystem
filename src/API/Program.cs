@@ -12,6 +12,7 @@ builder.Services.AddDbContext<DbDevTicketappContext>(options =>
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<EventoService>();
+builder.Services.AddScoped<MedioPagoService>();
 
 var app = builder.Build();
 
