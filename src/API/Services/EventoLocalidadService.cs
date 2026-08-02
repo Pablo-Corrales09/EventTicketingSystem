@@ -17,14 +17,12 @@ namespace API.Services
         // Método para obtener todas las localidades de eventos de la base de datos y mapearlas a DTOs EventoLocalidadDto.
         public async Task<List<EventoLocalidadDto>> ObtenerEventosLocalidadesAsync()
         {
-            var eventoLocalidades = await _context.EventoLocalidads
-                .Include(el => el.IdEventoNavigation)  
-                .Include(el => el.IdLocalidadNavigation) 
+            return await ObtenerQueryBase()
+                .Select(el => MapearEventoLocalidadDto(el))
                 .ToListAsync();
-
-            return eventoLocalidades.Select(el => MapearEventoLocalidadDto(el)).ToList();
         }
 
+        // Método auxiliar para obtener el nombre de un evento específico por su ID desde la base de datos.
         public async Task<string?> ObtenerNombreEventoPorIdAsync(int idEvento)
         {
             var evento = await _context.Eventos
@@ -35,7 +33,25 @@ namespace API.Services
             return evento;
         }
 
-        // Método para obtener todas las localidades de un evento específico de la base de datos y mapearlas a DTOs EventoLocalidadDto.
+          // Método para obtener un evento-localidad específico por su ID desde la base de datos y mapearlo a un DTO EventoLocalidadDto.
+        public async Task<EventoLocalidadDto?> ObtenerEventoLocalidadPorIdAsync(int id)
+        {
+            return await ObtenerQueryBase()
+                .Where(el => el.IdEventoLocalidad == id)
+                .Select(el => MapearEventoLocalidadDto(el))
+                .FirstOrDefaultAsync();      
+        }
+
+        // Método auxiliar para construir la consulta base que incluye las relaciones necesarias para obtener los datos de eventos y localidades.
+
+        private IQueryable<Models.EventoLocalidad> ObtenerQueryBase()
+        {
+            return _context.EventoLocalidads
+                .Include(el => el.IdEventoNavigation)
+                .Include(el => el.IdLocalidadNavigation);
+        }
+
+        // Método auxiliar para obtener todas las localidades de un evento específico de la base de datos y mapearlas a DTOs EventoLocalidadDto.
         public static EventoLocalidadDto MapearEventoLocalidadDto(Models.EventoLocalidad e)
         {
         return new EventoLocalidadDto
@@ -47,7 +63,13 @@ namespace API.Services
             NombreLocalidad = e.IdLocalidadNavigation != null ? e.IdLocalidadNavigation.NombreLocalidad : string.Empty,
             CapacidadDisponible = e.CapacidadDisponible,
             Precio = e.Precio
-        }; 
+        };
         }
+
+      
+
+
+
+        
     }// Fin de la clase.
 }// Fin del namespace.

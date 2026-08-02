@@ -21,5 +21,12 @@ namespace API.Controllers
         {
             return Ok(await _eventoLocalidadService.ObtenerEventosLocalidadesAsync());
         }
+
+        [HttpGet("{id}")] 
+        public async Task<ActionResult<EventoLocalidadDto>> GetEventoLocalidad (int id)
+        {
+            var eventoLocalidad = await _eventoLocalidadService.ObtenerEventoLocalidadPorIdAsync(id);
+            return eventoLocalidad == null ? NotFound() : Ok(eventoLocalidad);
+        }
     }
 }
