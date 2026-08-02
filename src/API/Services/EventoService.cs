@@ -5,7 +5,7 @@ namespace API.Services
 {
     public class EventoService
     {
-        public readonly DbDevTicketappContext _context;
+        private readonly DbDevTicketappContext _context;
 
         public EventoService(DbDevTicketappContext context)
         {

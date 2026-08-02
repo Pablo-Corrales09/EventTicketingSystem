@@ -6,7 +6,7 @@ namespace API.Services
 {
     public class MedioPagoService
     {
-        public readonly DbDevTicketappContext _context;
+        private readonly DbDevTicketappContext _context;
 
         public MedioPagoService(DbDevTicketappContext context)
         {
