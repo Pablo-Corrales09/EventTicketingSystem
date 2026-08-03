@@ -1,7 +1,9 @@
 using API.Data;
 using API.Dtos;
 using API.Models;
+using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Abstractions;
 
 namespace API.Services
 {
@@ -12,9 +14,7 @@ namespace API.Services
         public BoletoService(DbDevTicketappContext context)
         {
             _context = context;
-        }
-
-        
+        }      
 
         // Método que devuelve toda la lista de boletos con su respectiva información de usuario.
         public async Task<List<BoletoDto>> ObtenerTodosAsync()
@@ -22,6 +22,95 @@ namespace API.Services
             return await ObtenerQueryBase()
                 .Select(b => MapearBoletoDto(b))
                 .ToListAsync();
+        }
+
+        //Pendiente asignar factura
+        public async Task<BoletoDto?> CrearBoleto(int IdEventoLocalidad,int IdUsuario, int IdFactura)
+        {
+            // Recordar hacer la funcionalidad para crear la factura y consultar el evento en 1 solo request para mejoras de rendimiento.
+            //var nuevaFactura = await _facturaService.CrearFacturaAsync(request.IdUsuario, request.DetallesPago);
+
+            var nuevoBoleto = new Boleto
+            {
+                IdEventoLocalidad = IdEventoLocalidad,               
+                IdUsuario = IdUsuario,
+                IdFactura = IdFactura,
+                NumBoleto = await CrearNumBoleto(IdEventoLocalidad),
+                FechaCompra = await AsignarFechaCompra(IdEventoLocalidad)
+            };
+
+            _context.Add(nuevoBoleto);
+            await _context.SaveChangesAsync();
+
+            // Para que devuelva el boleto creado con los datos del usuario cargados, 
+            // podemos consultarlo de nuevo usando el ID y la query base:
+            return await ObtenerBoletoPorIdAsync(nuevoBoleto.IdBoleto);
+        }
+
+       
+       //Método auxiliar que valida la fecha de compra: si no es mayor al evento asigna la fecha actual, si no, le asigna nulo.
+       private async Task<DateTime?> AsignarFechaCompra(int IdEventoLocalidad)
+        {
+            bool esValida = await ValidarFechaEvento(IdEventoLocalidad);
+
+            if (esValida)
+            {
+                return  DateTime.Now;
+            }
+            return null;
+        }
+       
+        //Método auxiliar para validar que la fecha de compra del boleto no sea posterior a la fecha del evento.
+        private async Task<bool> ValidarFechaEvento(int idEventoLocalidad)
+        {
+            var fechaEvento = await _context.EventoLocalidads
+                .Where(el => el.IdEventoLocalidad == idEventoLocalidad)
+                .Include(ev => ev.IdEventoNavigation)
+                .Select(el => el.IdEventoNavigation.FechaEvento)
+                .FirstOrDefaultAsync();
+            var fechaActual = DateTime.Now;
+            return fechaActual <= fechaEvento;
+        }
+
+       //Funcion auxiliar para crear el nunero de boleto de manera consecutiva, segun el evento al que corresponde.  
+       private async Task<string> CrearNumBoleto(int idEventoLocalidad)
+        {
+            var localidad = await _context.EventoLocalidads
+                .Where(el => el.IdEventoLocalidad == idEventoLocalidad)
+                .Include(ev => ev.IdEventoNavigation)
+                .Select(el => el.IdEventoNavigation.NombreEvento)
+                .FirstOrDefaultAsync();
+
+            string prefijo = "XX"; 
+            if (!string.IsNullOrEmpty(localidad))
+            {
+                if (localidad.Length >= 2)
+                {
+                    prefijo = localidad.Substring(0, 2).ToUpper();
+                }
+                else
+                {
+                    prefijo = localidad.ToUpper();
+                }
+            }
+            var consecutivo = await ObtenerConsecutivo(idEventoLocalidad);
+
+            var numBoleto = $"BOL-{prefijo}-{consecutivo}";
+            
+            return numBoleto;
+        }
+
+        //Funcion auxiliar para obtener el numero de consecutivo de los tickets vendidos de un evento especifico.
+        private async Task<int> ObtenerConsecutivo(int idEventoLocalidad)
+        {
+
+            int cantidadBoletos = await _context.Boletos
+            .Where(b => b.IdEventoLocalidad == idEventoLocalidad)
+            .CountAsync();
+            
+            int consecutivo = cantidadBoletos + 1;
+
+            return consecutivo;
         }
 
         // Método para obtener un boleto por su ID reutilizando la query base y el mapeador
@@ -106,24 +195,6 @@ namespace API.Services
             };
         }
 
-        public async Task<BoletoDto?> CrearBoleto(int IdBoleto, int IdEventoLocalidad, int IdFactura, int IdUsuario, string numBoleto, DateTime? FechaCompra)
-        {
-            var nuevoBoleto = new Boleto
-            {
-                IdBoleto = IdBoleto,
-                IdEventoLocalidad = IdEventoLocalidad,
-                IdFactura = IdFactura,
-                IdUsuario = IdUsuario,
-                NumBoleto = numBoleto,
-                FechaCompra = FechaCompra
-            };
-
-            _context.Add(nuevoBoleto);
-            await _context.SaveChangesAsync();
-
-            // Para que devuelva el boleto creado con los datos del usuario cargados, 
-            // podemos consultarlo de nuevo usando el ID y la query base:
-            return await ObtenerBoletoPorIdAsync(nuevoBoleto.IdBoleto);
-        }
+        
     }
 }

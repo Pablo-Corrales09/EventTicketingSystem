@@ -55,7 +55,7 @@ GO
 SELECT * FROM evento;
 
 UPDATE sede_evento 
-SET ubicacion = 'La Sabana, San José' -- (O el texto de ubicación que prefieras)
+SET ubicacion = 'La Sabana, San José'
 WHERE id_sede_evento = 1;
 GO
 
