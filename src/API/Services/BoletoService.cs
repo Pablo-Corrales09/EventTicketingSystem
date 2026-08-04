@@ -1,5 +1,6 @@
 using API.Data;
 using API.Dtos;
+using API.DTOs;
 using API.Models;
 using Microsoft.AspNetCore.DataProtection.Repositories;
 using Microsoft.EntityFrameworkCore;
@@ -10,10 +11,12 @@ namespace API.Services
     public class BoletoService
     {
         private readonly DbDevTicketappContext _context;
+        private readonly FacturaService _facturaService;
 
-        public BoletoService(DbDevTicketappContext context)
+        public BoletoService(DbDevTicketappContext context, FacturaService facturaService)
         {
             _context = context;
+            _facturaService = facturaService;
         }      
 
         // Método que devuelve toda la lista de boletos con su respectiva información de usuario.
@@ -25,26 +28,47 @@ namespace API.Services
         }
 
         //Pendiente asignar factura
-        public async Task<BoletoDto?> CrearBoleto(int IdEventoLocalidad,int IdUsuario, int IdFactura)
+        public async Task<BoletoDto?> ComprarBoleto(int IdEventoLocalidad, int IdUsuario, int IdMedioPago)
         {
-            // Recordar hacer la funcionalidad para crear la factura y consultar el evento en 1 solo request para mejoras de rendimiento.
-            //var nuevaFactura = await _facturaService.CrearFacturaAsync(request.IdUsuario, request.DetallesPago);
+            using var transaction = await _context.Database.BeginTransactionAsync();
 
-            var nuevoBoleto = new Boleto
+            try
             {
-                IdEventoLocalidad = IdEventoLocalidad,               
-                IdUsuario = IdUsuario,
-                IdFactura = IdFactura,
-                NumBoleto = await CrearNumBoleto(IdEventoLocalidad),
-                FechaCompra = await AsignarFechaCompra(IdEventoLocalidad)
-            };
+                var facturaDto = new FacturaCreateDto
+                {
+                    IdUsuario = IdUsuario,
+                    IdMedioPago = IdMedioPago,
+                    IdsBoletos = new List<int> { IdEventoLocalidad } 
+                };
 
-            _context.Add(nuevoBoleto);
-            await _context.SaveChangesAsync();
+                // 2. Creamos la factura
+                var facturaCreada = await _facturaService.CrearFacturaAsync(facturaDto);
 
-            // Para que devuelva el boleto creado con los datos del usuario cargados, 
-            // podemos consultarlo de nuevo usando el ID y la query base:
-            return await ObtenerBoletoPorIdAsync(nuevoBoleto.IdBoleto);
+                if (facturaCreada == null)
+                {
+                    throw new Exception("No se pudo generar la factura.");
+                }
+
+                var nuevoBoleto = new Boleto
+                {
+                    IdEventoLocalidad = IdEventoLocalidad,               
+                    IdUsuario = IdUsuario,
+                    IdFactura = facturaCreada.IdFactura,
+                    NumBoleto = await CrearNumBoleto(IdEventoLocalidad),
+                    FechaCompra = await AsignarFechaCompra(IdEventoLocalidad)
+                };
+
+                _context.Add(nuevoBoleto);
+                await _context.SaveChangesAsync();
+                await transaction.CommitAsync();
+
+                return await ObtenerBoletoPorIdAsync(nuevoBoleto.IdBoleto);
+            }
+            catch (Exception)
+            {
+                await transaction.RollbackAsync();
+                throw; 
+            }
         }
 
        

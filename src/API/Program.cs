@@ -16,6 +16,7 @@ builder.Services.AddScoped<MedioPagoService>();
 builder.Services.AddScoped<LocalidadService>();
 builder.Services.AddScoped<EventoLocalidadService>();
 builder.Services.AddScoped<BoletoService>();
+builder.Services.AddScoped<FacturaService>();
 
 var app = builder.Build();
 

@@ -21,7 +21,7 @@ namespace API.Controllers
             return Ok(await _boletoService.ObtenerTodosAsync());
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public async Task<ActionResult<BoletoDto>> GetBoleto(int id)
         {
             var boleto = await _boletoService.ObtenerBoletoPorIdAsync(id);
@@ -35,23 +35,13 @@ namespace API.Controllers
             return boleto == null ? NotFound() : Ok(boleto);
         }
 
-        /*[HttpGet("probar-boleto")]
-        public async Task<IActionResult> ProbarBoleto(int idLocalidad)
+        [HttpPost("comprar")]
+        public async Task<ActionResult<BoletoDto>> CompraDeBoleto([FromBody] BoletoCreacionDto request)
         {
-            // Como tu servicio es async, usas 'await'
-            string resultado = await _boletoService.CrearNumBoleto(idLocalidad);
-
-            // Retorna el resultado para verlo en el navegador, Postman o Swagger
-            return Ok(new { NumeroBoletoGenerado = resultado });
-        }*/
-
-        [HttpPost("crear")]
-        public async Task<ActionResult<BoletoDto>> CrearBoleto([FromBody] BoletoCreacionDto request)
-        {
-            var boletoCreado = await _boletoService.CrearBoleto(
+            var boletoCreado = await _boletoService.ComprarBoleto(
                 request.IdEventoLocalidad,
                 request.IdUsuario,
-                request.IdFactura
+                request.IdMedioPago
             );
 
             if (boletoCreado == null)
