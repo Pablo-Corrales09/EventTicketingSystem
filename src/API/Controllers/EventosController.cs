@@ -44,5 +44,18 @@ namespace API.Controllers
             return evento == null ? NotFound() : Ok(evento);
         }
 
+        [HttpPost("crear")]
+        public async Task<ActionResult<EventoDto>> CrearEvento([FromBody] EventoCreacionDto request)
+        {
+            
+            var eventoCreado = await _eventoService.CrearEventoAsync(request);
+
+            if (eventoCreado == null)
+            {
+                return BadRequest("No se pudo crear el evento. Verifica los datos enviados.");
+            }
+            return Ok(eventoCreado); 
+        }
+
     }
 }
