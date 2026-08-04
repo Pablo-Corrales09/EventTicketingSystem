@@ -20,6 +20,24 @@ namespace API.Services
             return eventos.Select(e => MapearEventoLocalidadDto(e)).ToList();
         }
 
+
+        // Método para crear un nuevo evento en la DB
+        public async Task<EventoDto> CrearEventoAsync(EventoCreacionDto eventoCreacionDto)
+        {
+            var nuevoEvento = new Models.Evento
+            {
+                NombreEvento = eventoCreacionDto.NombreEvento,
+                FechaEvento = eventoCreacionDto.FechaEvento,
+                HoraEvento = eventoCreacionDto.HoraEvento,
+                IdSede = eventoCreacionDto.IdSede
+            };
+
+            _context.Eventos.Add(nuevoEvento);
+            await _context.SaveChangesAsync();
+
+            return MapearEventoLocalidadDto(nuevoEvento);
+        }
+
         //Método auxiliar para evitar la duplicación de código al mapear un objeto Evento a EventoDto
         private static EventoDto MapearEventoLocalidadDto(Models.Evento e)
         {
