@@ -1,60 +1,281 @@
-@model List<Web.Models.EventoViewModel>
+@model IEnumerable<Web.Models.EventoSedeViewModel>
 
 @{
-    ViewData["Title"] = "Eventos";
+    ViewData["Title"] = "Eventos Disponibles";
 }
 
-<div class="container mt-4">
-    <div class="mb-4">
-        <h1>Eventos disponibles</h1>
-        <p class="text-muted">
-            Consulta la información de los eventos registrados en el sistema.
-        </p>
+<!-- Título de la vista añadido -->
+<div class="container my-4">
+    <div class="row mb-4">
+        <div class="col-12 text-center">
+            <h1 class="fw-bold text-primary display-5">
+                <i class="bi bi-calendar-event me-2"></i>Eventos Disponibles
+            </h1>
+            <p class="text-muted">Explora nuestra cartelera, descubre las sedes y asegura tus entradas.</p>
+        </div>
     </div>
 
     @if (ViewBag.Error != null)
     {
-        <div class="alert alert-danger">
+        <div class="alert alert-danger shadow-sm">
             @ViewBag.Error
         </div>
     }
-    else if (Model.Count == 0)
+    else if (Model == null || !Model.Any())
     {
-        <div class="alert alert-info">
-            No hay eventos disponibles.
+        <div class="alert alert-info shadow-sm">
+            No hay eventos disponibles en este momento.
         </div>
     }
     else
     {
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered align-middle">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Evento</th>
-                        <th>Fecha</th>
-                        <th>Hora</th>
-                        <th>Sede</th>
-                        <th>Ubicación</th>
-                    </tr>
-                </thead>
+        <div class="row">
+            @foreach (var evento in Model)
+            {
+                <div class="col-md-4 mb-4">
+                    <!-- Clases de transición y hover añadidas para interactividad visual -->
+                    <div class="card h-100 shadow-sm border-0 event-card transition-hover">
+                        <div class="card-body d-flex flex-column">
+                            <h5 class="card-title fw-bold text-dark">@evento.NombreEvento</h5>
 
-                <tbody>
-                    @foreach (var evento in Model)
-                    {
-                        <tr>
-                            <td>@evento.NombreEvento</td>
-                            <td>@evento.FechaEvento.ToString("dd/MM/yyyy")</td>
-                            <td>@evento.HoraEvento.ToString("HH:mm")</td>
-                            <td>
-                                @(evento.Sede?.NombreSedeEvento ?? "Sin sede")
-                            </td>
-                            <td>
-                                @(evento.Sede?.Ubicacion ?? "No disponible")
-                            </td>
-                        </tr>
-                    }
-                </tbody>
-            </table>
+                            <p class="card-text mb-1 text-secondary">
+                                <i class="bi bi-calendar3 me-1"></i><strong>Fecha:</strong> @evento.FechaEvento.ToString("dd/MM/yyyy")
+                            </p>
+
+                            <p class="card-text mb-1 text-secondary">
+                                <i class="bi bi-clock me-1"></i><strong>Hora:</strong> @evento.HoraEvento.ToString()
+                            </p>
+
+                            <p class="card-text mb-3 text-secondary">
+                                <i class="bi bi-geo-alt me-1"></i><strong>Sede:</strong> @(evento.Sede?.NombreSedeEvento ?? "Sin sede")
+                            </p>
+
+                            <button class="btn btn-outline-primary mt-auto btn-ver-detalles shadow-sm"
+                                    data-id="@evento.IdEvento"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalDetallesEvento">
+                                <i class="bi bi-ticket-perforated me-1"></i> Ver Detalles y Comprar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            }
         </div>
     }
+
+    <div class="modal fade" id="modalDetallesEvento" tabindex="-1" aria-labelledby="modalTitulo" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content border-0 shadow">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="modalTitulo">Detalles del evento</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body p-4">
+                    <div id="modalCargando">
+                        <div class="text-center py-4">
+                            <div class="spinner-border text-primary" role="status">
+                                <span class="visually-hidden">Cargando...</span>
+                            </div>
+                            <p class="mt-2 mb-0 text-muted">Consultando disponibilidad...</p>
+                        </div>
+                    </div>
+
+                    <div id="modalContenido" class="d-none">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <h6 class="fw-bold text-secondary border-bottom pb-2">
+                                    <i class="bi bi-info-circle me-1"></i> Información de la Sede
+                                </h6>
+
+                                <ul class="list-unstyled mt-3">
+                                    <li class="mb-2">
+                                        <strong>Ubicación:</strong>
+                                        <span id="lblUbicacion" class="text-muted"></span>
+                                    </li>
+                                    <li>
+                                        <strong>Capacidad Máxima:</strong>
+                                        <span id="lblCapacidad" class="text-muted"></span> personas
+                                    </li>
+                                </ul>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <h6 class="fw-bold text-secondary border-bottom pb-2">
+                                    <i class="bi bi-tags me-1"></i> Selecciona tu Localidad
+                                </h6>
+
+                                <div id="listaLocalidades" class="list-group mt-3"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer d-none bg-light" id="modalFooter">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                        Cancelar
+                    </button>
+
+                    <button type="button" class="btn btn-success shadow-sm" id="btnContinuarCompra">
+                        <i class="bi bi-cart-check me-1"></i> Continuar al Pago
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- Estilos CSS para animaciones e interactividad visual -->
+<style>
+    .transition-hover {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    .transition-hover:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
+    }
+    .cursor-pointer {
+        cursor: pointer;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const botonesDetalles = document.querySelectorAll('.btn-ver-detalles');
+
+        botonesDetalles.forEach(boton => {
+            boton.addEventListener('click', function () {
+                const idEvento = this.getAttribute('data-id');
+
+                const modalCargando = document.getElementById('modalCargando');
+                const modalContenido = document.getElementById('modalContenido');
+                const modalFooter = document.getElementById('modalFooter');
+                const modalTitulo = document.getElementById('modalTitulo');
+                const lblUbicacion = document.getElementById('lblUbicacion');
+                const lblCapacidad = document.getElementById('lblCapacidad');
+                const contenedorLocalidades = document.getElementById('listaLocalidades');
+
+                modalCargando.classList.remove('d-none');
+                modalContenido.classList.add('d-none');
+                modalFooter.classList.add('d-none');
+                modalTitulo.innerText = 'Cargando detalles...';
+                contenedorLocalidades.innerHTML = '';
+
+                fetch(`/Eventos/ObtenerDetalles/${idEvento}`)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Error al cargar los detalles del evento.');
+                        }
+
+                        return response.json();
+                    })
+                    .then(data => {
+                        modalTitulo.innerText = data.nombreEvento ?? 'Detalles del evento';
+
+                        lblUbicacion.innerText =
+                            data.sede?.ubicacion ?? 'Sin ubicación';
+
+                        const capacidadTotal = (data.localidades ?? [])
+                            .reduce(
+                                (suma, loc) => suma + (loc.capacidadMaxima ?? 0),
+                                0
+                            );
+
+                        lblCapacidad.innerText =
+                            capacidadTotal > 0
+                                ? capacidadTotal
+                                : 'No definida';
+
+                        contenedorLocalidades.innerHTML = '';
+
+                        if (data.localidades && data.localidades.length > 0) {
+                            data.localidades.forEach(loc => {
+                                const nombreLocalidad =
+                                    loc.nombreLocalidad &&
+                                    loc.nombreLocalidad.trim() !== ''
+                                        ? loc.nombreLocalidad
+                                        : `Localidad Zona #${loc.idLocalidad}`;
+
+                                const precio = new Intl.NumberFormat('es-CR', {
+                                    style: 'currency',
+                                    currency: 'CRC',
+                                    minimumFractionDigits: 0
+                                }).format(loc.precio ?? 0);
+
+                                const label = document.createElement('label');
+                                label.className =
+                                    'list-group-item d-flex justify-content-between align-items-center list-group-item-action cursor-pointer';
+
+                                const div = document.createElement('div');
+
+                                const input = document.createElement('input');
+                                input.className = 'form-check-input me-2';
+                                input.type = 'radio';
+                                input.name = 'radioLocalidad';
+                                input.value = loc.idEventoLocalidad;
+
+                                const nombre = document.createTextNode(nombreLocalidad);
+
+                                div.appendChild(input);
+                                div.appendChild(nombre);
+
+                                const badge = document.createElement('span');
+                                badge.className = 'badge bg-primary rounded-pill';
+                                badge.innerText = precio;
+
+                                label.appendChild(div);
+                                label.appendChild(badge);
+
+                                contenedorLocalidades.appendChild(label);
+                            });
+                        } else {
+                            const mensaje = document.createElement('p');
+                            mensaje.className = 'text-danger small';
+                            mensaje.innerText =
+                                'No hay localidades disponibles para este evento.';
+
+                            contenedorLocalidades.appendChild(mensaje);
+                        }
+
+                        modalCargando.classList.add('d-none');
+                        modalContenido.classList.remove('d-none');
+
+                        if (data.localidades && data.localidades.length > 0) {
+                            modalFooter.classList.remove('d-none');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+
+                        modalCargando.classList.add('d-none');
+                        modalFooter.classList.add('d-none');
+
+                        modalTitulo.innerText = 'Error de conexión';
+
+                        modalContenido.innerHTML = `
+                            <div class="alert alert-danger mb-0">
+                                No se pudo cargar la información del evento en este momento.
+                            </div>
+                        `;
+
+                        modalContenido.classList.remove('d-none');
+                    });
+            });
+        });
+
+        document.getElementById('btnContinuarCompra').addEventListener('click', function () {
+            const localidadSeleccionada =
+                document.querySelector('input[name="radioLocalidad"]:checked');
+
+            if (!localidadSeleccionada) {
+                alert('Por favor, selecciona una localidad de la lista para continuar.');
+                return;
+            }
+
+            const idEventoLocalidad = localidadSeleccionada.value;
+
+            window.location.href =
+                `/Compra/Comprar?idEventoLocalidad=${encodeURIComponent(idEventoLocalidad)}`;
+        });
+    });
+</script>

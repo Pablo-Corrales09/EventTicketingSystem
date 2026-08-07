@@ -1,7 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using API.Dtos; // Ajusta este using si tus DTOs están en API.Dtos.Factura
 using API.Services;
 using API.DTOs;
 

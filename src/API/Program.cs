@@ -23,7 +23,6 @@ builder.Services.AddScoped<FacturaService>();
 builder.Services.AddScoped<LoginService>();
 builder.Services.AddScoped<TokenService>();
 
-// 2. CORREGIDO: Debe apuntar a "JwtSettings" que está en tu appsettings.json
 var jwtSettings = builder.Configuration.GetSection("JwtSettings");
 var secretKey = jwtSettings["Secret"] ?? throw new InvalidOperationException("JwtSettings:Secret no esta configurado.");
 

@@ -1,0 +1,43 @@
+@model Web.Models.BoletoViewModel
+
+@{
+    ViewData["Title"] = "Detalles del Boleto";
+}
+
+<h2>@ViewData["Title"]</h2>
+
+<div>
+    <h4>Información de Compra</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">Número de Boleto</dt>
+        <dd class="col-sm-9">@Model.NumBoleto</dd>
+
+        <dt class="col-sm-3">Evento</dt>
+        <dd class="col-sm-9">@Model.NombreEvento</dd>
+
+        <dt class="col-sm-3">Localidad</dt>
+        <dd class="col-sm-9">@Model.NombreLocalidad</dd>
+
+        <dt class="col-sm-3">Fecha del Evento</dt>
+        <dd class="col-sm-9">@Model.FechaEvento</dd>
+
+        <dt class="col-sm-3">Hora del Evento</dt>
+        <dd class="col-sm-9">@Model.HoraEvento</dd>
+
+        <dt class="col-sm-3">Precio Pagado</dt>
+        <dd class="col-sm-9">₡@Model.Precio</dd>
+
+        <dt class="col-sm-3">Comprador</dt>
+        <dd class="col-sm-9">@Model.NombreUsuario @Model.ApellidoUsuario</dd>
+
+        <dt class="col-sm-3">Correo</dt>
+        <dd class="col-sm-9">@Model.CorreoUsuario</dd>
+
+        <dt class="col-sm-3">Número de Factura</dt>
+        <dd class="col-sm-9">@Model.NumeroFactura</dd>
+    </dl>
+</div>
+<div class="mt-3">
+    <a asp-action="Index" class="btn btn-secondary">Volver a la lista</a>
+</div>
