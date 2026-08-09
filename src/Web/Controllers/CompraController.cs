@@ -20,20 +20,37 @@ public class CompraController : Controller
 
         try
         {
-            var todasLocalidades = await client.GetFromJsonAsync<List<EventoLocalidadViewModel>>("api/EventosLocalidades");
-            var localidadSeleccionada = todasLocalidades?.FirstOrDefault(l => l.IdEventoLocalidad == idEventoLocalidad);
+            var todasLocalidades =
+                await client.GetFromJsonAsync<List<EventoLocalidadViewModel>>(
+                    "api/EventosLocalidades"
+                );
+
+            var localidadSeleccionada = todasLocalidades?
+                .FirstOrDefault(l =>
+                    l.IdEventoLocalidad == idEventoLocalidad
+                );
 
             if (localidadSeleccionada == null)
             {
-                return NotFound("La localidad seleccionada no es válida o ya no está disponible.");
+                return NotFound(
+                    "La localidad seleccionada no es válida o ya no está disponible."
+                );
             }
 
             var modelo = new ProcesoPagoViewModel
             {
-                IdEventoLocalidad = localidadSeleccionada.IdEventoLocalidad,
-                NombreEvento = localidadSeleccionada.NombreEvento,
-                NombreLocalidad = localidadSeleccionada.NombreLocalidad,
-                Precio = localidadSeleccionada.Precio,
+                IdEventoLocalidad =
+                    localidadSeleccionada.IdEventoLocalidad,
+
+                NombreEvento =
+                    localidadSeleccionada.NombreEvento,
+
+                NombreLocalidad =
+                    localidadSeleccionada.NombreLocalidad,
+
+                Precio =
+                    localidadSeleccionada.Precio,
+
                 IdMedioPago = 1
             };
 
@@ -41,56 +58,73 @@ public class CompraController : Controller
         }
         catch (HttpRequestException)
         {
-            ViewBag.Error = "No fue posible conectar con la API para procesar la compra.";
+            ViewBag.Error =
+                "No fue posible conectar con la API para procesar la compra.";
+
             return View(new ProcesoPagoViewModel());
         }
     }
 
     [HttpPost]
     [ValidateAntiForgeryToken]
-    public async Task<IActionResult> ProcesarPago(ProcesoPagoViewModel modelo)
+    public async Task<IActionResult> ProcesarPago(
+        ProcesoPagoViewModel modelo
+    )
     {
         var client = _httpClientFactory.CreateClient("API");
 
-        var facturaRequest = new
+        var compraRequest = new
         {
+            IdEventoLocalidad = modelo.IdEventoLocalidad,
             IdUsuario = modelo.IdUsuario,
-            IdMedioPago = modelo.IdMedioPago,
-            IdEventoLocalidad = modelo.IdEventoLocalidad
+            IdMedioPago = modelo.IdMedioPago
         };
 
         try
         {
-            var response = await client.PostAsJsonAsync("api/Facturas/crear", facturaRequest);
+            var response = await client.PostAsJsonAsync(
+                "api/Boletos/comprar",
+                compraRequest
+            );
 
             if (response.IsSuccessStatusCode)
             {
-                var facturaCreada = await response.Content.ReadFromJsonAsync<FacturaResponseDto>();
-                return RedirectToAction(nameof(Confirmacion), new { id = facturaCreada?.IdFactura });
+                var boletoCreado =
+                    await response.Content
+                        .ReadFromJsonAsync<BoletoViewModel>();
+
+                if (boletoCreado == null)
+                {
+                    ModelState.AddModelError(
+                        string.Empty,
+                        "La compra fue procesada, pero no fue posible obtener la información del boleto."
+                    );
+
+                    return View("Comprar", modelo);
+                }
+
+                return RedirectToAction(
+                    "Details",
+                    "Boletos",
+                    new { id = boletoCreado.IdBoleto }
+                );
             }
 
-            ModelState.AddModelError(string.Empty, "Hubo un error al procesar el pago y generar la factura.");
-            return View(modelo);
+            ModelState.AddModelError(
+                string.Empty,
+                "Hubo un error al procesar la compra."
+            );
+
+            return View("Comprar", modelo);
         }
         catch (HttpRequestException)
         {
-            ModelState.AddModelError(string.Empty, "Error de comunicación con la API de facturación.");
-            return View(modelo);
-        }
-    }
+            ModelState.AddModelError(
+                string.Empty,
+                "No fue posible comunicarse con la API."
+            );
 
-    public async Task<IActionResult> Confirmacion(int id)
-    {
-        var client = _httpClientFactory.CreateClient("API");
-
-        try
-        {
-            var factura = await client.GetFromJsonAsync<FacturaResponseDto>($"api/Facturas/{id}");
-            return View(factura);
-        }
-        catch (HttpRequestException)
-        {
-            return View();
+            return View("Comprar", modelo);
         }
     }
 }

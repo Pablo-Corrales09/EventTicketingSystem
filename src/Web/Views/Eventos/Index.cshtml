@@ -177,7 +177,7 @@
 
                         const capacidadTotal = (data.localidades ?? [])
                             .reduce(
-                                (suma, loc) => suma + (loc.capacidadMaxima ?? 0),
+                                (suma, loc) => suma + (loc.capacidadDisponible ?? 0),
                                 0
                             );
 
