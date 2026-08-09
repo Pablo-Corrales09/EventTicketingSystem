@@ -10,6 +10,8 @@ public class EventoViewModel
 
     public TimeOnly HoraEvento { get; set; }
 
+    public string? ImagenUrl { get; set; }
+
     public SedeViewModel? Sede { get; set; }
 }
 

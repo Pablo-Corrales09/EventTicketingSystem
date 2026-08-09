@@ -1,0 +1,21 @@
+<div class="container">
+  <h2 class="titulo">Listado de Boletos (EventTicketingSystem)</h2>
+
+  @if (cargando()) {
+    <p style="text-align: center;">Cargando datos desde el backend de C#...</p>
+  } @else {
+    <ul class="lista-boletos">
+      @for (boleto of boletos(); track boleto.idBoleto) {
+        <li class="tarjeta-boleto">
+          <div><span class="info-etiqueta">Evento:</span> {{ boleto.nombreEvento }}</div>
+          <div><span class="info-etiqueta">Boleto #:</span> {{ boleto.numBoleto }}</div>
+          <div><span class="info-etiqueta">Localidad:</span> {{ boleto.nombreLocalidad }}</div>
+          <div><span class="info-etiqueta">Comprador:</span> {{ boleto.nombreUsuario }} {{ boleto.apellidoUsuario }}</div>
+          <div><span class="info-etiqueta">Precio:</span> ₡{{ boleto.precio }}</div>
+        </li>
+      } @empty {
+        <p style="text-align: center;">No se encontraron boletos registrados.</p>
+      }
+    </ul>
+  }
+</div>

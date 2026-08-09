@@ -56,6 +56,18 @@
 
                         </li>
                     </ul>
+                    <div class="d-flex align-items-center">
+                        <div id="areaUsuario">
+                            <button type="button" class="btn btn-primary btn-iniciar-sesion"
+                                    data-bs-toggle="modal"
+                                    data-bs-target="#modalLogin">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                                    <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+                                </svg>
+                                Iniciar sesión
+                            </button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </nav>
@@ -74,6 +86,318 @@
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <div class="modal fade" id="modalLogin" tabindex="-1" aria-labelledby="modalLoginLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modal-auth">
+
+                <div class="modal-header">
+                    <div class="text-center w-100">
+                        <div class="modal-icono mb-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+                            </svg>
+                        </div>
+                        <h5 class="modal-title fw-bold text-dark" id="modalLoginLabel">Iniciar sesión</h5>
+                        <p class="text-muted mb-0 small">Accede con tu cuenta para gestionar tus entradas.</p>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <div class="alert alert-danger d-none shadow-sm" id="alertaLogin" role="alert"></div>
+                    <div class="alert alert-success d-none shadow-sm" id="exitoLogin" role="alert"></div>
+
+                    <div id="vistaLogin">
+                        <form id="formularioLogin" novalidate>
+                            <div class="mb-3">
+                                <label for="loginCorreo" class="form-label fw-semibold">Correo electrónico</label>
+                                <input type="email" class="form-control" id="loginCorreo"
+                                       placeholder="tucorreo@ejemplo.com" autocomplete="email" required />
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="loginContrasena" class="form-label fw-semibold">Contraseña</label>
+                                <div class="input-group">
+                                    <input type="password" class="form-control" id="loginContrasena"
+                                           placeholder="Ingresa tu contraseña" autocomplete="current-password" required />
+                                    <button type="button" class="btn btn-outline-secondary ojito" id="ojoLogin"
+                                            aria-label="Mostrar u ocultar contraseña">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                            <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                            <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                        </svg>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="loginRecordarme" />
+                                    <label class="form-check-label" for="loginRecordarme">Recuérdame</label>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-auth" id="btnIniciarSesion">
+                                Iniciar sesión
+                            </button>
+
+                            <p class="text-center text-muted small mt-3 mb-0">
+                                ¿No tienes cuenta?
+                                <a href="#" class="link-enlace" id="enlaceRegistro">Regístrate</a>
+                            </p>
+                        </form>
+                    </div>
+
+                    <div id="vistaRegistro" class="d-none">
+                        <form id="formularioRegistro" novalidate>
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label for="regNombre" class="form-label fw-semibold">Nombre</label>
+                                    <input type="text" class="form-control" id="regNombre" placeholder="Tu nombre" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="regApellido" class="form-label fw-semibold">Apellido</label>
+                                    <input type="text" class="form-control" id="regApellido" placeholder="Tu apellido" required />
+                                </div>
+                                <div class="col-12">
+                                    <label for="regCorreo" class="form-label fw-semibold">Correo electrónico</label>
+                                    <input type="email" class="form-control" id="regCorreo" placeholder="tucorreo@ejemplo.com" required />
+                                </div>
+                                <div class="col-12">
+                                    <label for="regTelefono" class="form-label fw-semibold">Teléfono <span class="text-muted fw-normal">(opcional)</span></label>
+                                    <input type="tel" class="form-control" id="regTelefono" placeholder="8-XXXX-XXXX" />
+                                </div>
+                                <div class="col-12">
+                                    <label for="regContrasena" class="form-label fw-semibold">Contraseña</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="regContrasena"
+                                               placeholder="Mínimo 8 caracteres" autocomplete="new-password" required />
+                                        <button type="button" class="btn btn-outline-secondary ojito" id="ojoRegistro"
+                                                aria-label="Mostrar u ocultar contraseña">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                                <path d="M16 8s-3-5.5-8-5.5S0 8 0 8s3 5.5 8 5.5S16 8 16 8zM1.173 8a13.133 13.133 0 0 1 1.66-2.043C4.12 4.668 5.88 3.5 8 3.5c2.12 0 3.879 1.168 5.168 2.457A13.133 13.133 0 0 1 14.828 8c-.058.087-.122.183-.195.288-.335.48-.83 1.12-1.465 1.755C11.879 11.332 10.119 12.5 8 12.5c-2.12 0-3.879-1.168-5.168-2.457A13.134 13.134 0 0 1 1.172 8z"/>
+                                                <path d="M8 5.5a2.5 2.5 0 1 0 0 5 2.5 2.5 0 0 0 0-5zM4.5 8a3.5 3.5 0 1 1 7 0 3.5 3.5 0 0 1-7 0z"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                    <div class="form-text">La contraseña debe tener al menos 8 caracteres.</div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary w-100 btn-auth mt-4" id="btnRegistrarse">
+                                Crear cuenta
+                            </button>
+
+                            <p class="text-center text-muted small mt-3 mb-0">
+                                ¿Ya tienes cuenta?
+                                <a href="#" class="link-enlace" id="enlaceLogin">Inicia sesión</a>
+                            </p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const areaUsuario = document.getElementById('areaUsuario');
+            const modalEl = document.getElementById('modalLogin');
+            const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+
+            const vistaLogin = document.getElementById('vistaLogin');
+            const vistaRegistro = document.getElementById('vistaRegistro');
+            const alerta = document.getElementById('alertaLogin');
+            const exito = document.getElementById('exitoLogin');
+            const tituloModal = document.getElementById('modalLoginLabel');
+
+            function mostrarError(mensaje) {
+                exito.classList.add('d-none');
+                alerta.textContent = mensaje;
+                alerta.classList.remove('d-none');
+            }
+
+            function mostrarExito(mensaje) {
+                alerta.classList.add('d-none');
+                exito.textContent = mensaje;
+                exito.classList.remove('d-none');
+            }
+
+            function mostrarVista(vista) {
+                alerta.classList.add('d-none');
+                exito.classList.add('d-none');
+
+                if (vista === 'registro') {
+                    vistaLogin.classList.add('d-none');
+                    vistaRegistro.classList.remove('d-none');
+                    tituloModal.textContent = 'Crear cuenta';
+                } else {
+                    vistaRegistro.classList.add('d-none');
+                    vistaLogin.classList.remove('d-none');
+                    tituloModal.textContent = 'Iniciar sesión';
+                }
+            }
+
+            document.getElementById('enlaceRegistro').addEventListener('click', function (e) {
+                e.preventDefault();
+                mostrarVista('registro');
+            });
+
+            document.getElementById('enlaceLogin').addEventListener('click', function (e) {
+                e.preventDefault();
+                mostrarVista('login');
+            });
+
+            function alternarContrasena(input, ojo) {
+                const esContrasena = input.type === 'password';
+                input.type = esContrasena ? 'text' : 'password';
+                ojo.classList.toggle('activo', esContrasena);
+            }
+
+            document.getElementById('ojoLogin').addEventListener('click', function () {
+                alternarContrasena(document.getElementById('loginContrasena'), this);
+            });
+
+            document.getElementById('ojoRegistro').addEventListener('click', function () {
+                alternarContrasena(document.getElementById('regContrasena'), this);
+            });
+
+            function renderizarEstado(estado) {
+                if (estado.autenticado) {
+                    const rol = estado.role
+                        ? `<span class="badge-rol">${estado.role}</span>`
+                        : '';
+
+                    areaUsuario.innerHTML = `
+                        <span class="usuario-chip me-2" title="${estado.correo}">
+                            ${estado.nombre} ${rol}
+                        </span>
+                        <button type="button" class="btn btn-outline-secondary btn-cerrar-sesion">
+                            Cerrar sesión
+                        </button>`;
+
+                    areaUsuario.querySelector('.btn-cerrar-sesion').addEventListener('click', function () {
+                        fetch('/Auth/Logout', { method: 'POST' })
+                            .then(res => res.json())
+                            .then(() => cargarEstado());
+                    });
+                } else {
+                    areaUsuario.innerHTML = `
+                        <button type="button" class="btn btn-primary btn-iniciar-sesion"
+                                data-bs-toggle="modal" data-bs-target="#modalLogin">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4Zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10Z"/>
+                            </svg>
+                            Iniciar sesión
+                        </button>`;
+                }
+            }
+
+            function cargarEstado() {
+                fetch('/Auth/Estado')
+                    .then(res => res.json())
+                    .then(renderizarEstado)
+                    .catch(() => renderizarEstado({ autenticado: false }));
+            }
+
+            document.getElementById('formularioLogin').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (!this.checkValidity()) {
+                    this.classList.add('was-validated');
+                    return;
+                }
+
+                const boton = document.getElementById('btnIniciarSesion');
+                boton.disabled = true;
+                boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Verificando...';
+
+                fetch('/Auth/Login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        correo: document.getElementById('loginCorreo').value.trim(),
+                        contrasena: document.getElementById('loginContrasena').value,
+                        recordarme: document.getElementById('loginRecordarme').checked
+                    })
+                })
+                    .then(async res => ({ ok: res.ok, body: await res.json() }))
+                    .then(({ ok, body }) => {
+                        if (ok) {
+                            mostrarExito(body.mensaje);
+                            setTimeout(() => {
+                                modal.hide();
+                                mostrarVista('login');
+                                document.getElementById('formularioLogin').reset();
+                                document.getElementById('formularioLogin').classList.remove('was-validated');
+                                cargarEstado();
+                            }, 900);
+                        } else {
+                            mostrarError(body.mensaje || 'No se pudo iniciar sesión.');
+                        }
+                    })
+                    .catch(() => mostrarError('Error de conexión con el servidor. Inténtalo de nuevo.'))
+                    .finally(() => {
+                        boton.disabled = false;
+                        boton.innerHTML = 'Iniciar sesión';
+                    });
+            });
+
+            document.getElementById('formularioRegistro').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                if (!this.checkValidity()) {
+                    this.classList.add('was-validated');
+                    return;
+                }
+
+                const boton = document.getElementById('btnRegistrarse');
+                boton.disabled = true;
+                boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Creando cuenta...';
+
+                fetch('/Auth/Registrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre: document.getElementById('regNombre').value.trim(),
+                        apellido: document.getElementById('regApellido').value.trim(),
+                        correo: document.getElementById('regCorreo').value.trim(),
+                        telefono: document.getElementById('regTelefono').value.trim(),
+                        contrasena: document.getElementById('regContrasena').value
+                    })
+                })
+                    .then(async res => ({ ok: res.ok, body: await res.json() }))
+                    .then(({ ok, body }) => {
+                        if (ok) {
+                            document.getElementById('loginCorreo').value = document.getElementById('regCorreo').value.trim();
+                            mostrarExito(body.mensaje);
+                            setTimeout(() => {
+                                mostrarVista('login');
+                                document.getElementById('formularioRegistro').reset();
+                                document.getElementById('formularioRegistro').classList.remove('was-validated');
+                            }, 1200);
+                        } else {
+                            mostrarError(body.mensaje || 'No se pudo registrar el usuario.');
+                        }
+                    })
+                    .catch(() => mostrarError('Error de conexión con el servidor. Inténtalo de nuevo.'))
+                    .finally(() => {
+                        boton.disabled = false;
+                        boton.innerHTML = 'Crear cuenta';
+                    });
+            });
+
+            modalEl.addEventListener('hidden.bs.modal', function () {
+                alerta.classList.add('d-none');
+                exito.classList.add('d-none');
+            });
+
+            cargarEstado();
+        });
+    </script>
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

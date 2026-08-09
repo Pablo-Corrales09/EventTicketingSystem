@@ -19,6 +19,7 @@ namespace API.Services
     public async Task<Usuario?> ValidarCredencialesAsync(LoginRequestDto dto)
         {
             var usuario = await _context.Usuarios
+                .Include(u => u.IdRoleNavigation)
                 .FirstOrDefaultAsync(u => u.Correo == dto.Correo);
                 
             if (usuario == null)

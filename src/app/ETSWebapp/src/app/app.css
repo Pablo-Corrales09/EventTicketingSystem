@@ -1,0 +1,40 @@
+.container {
+  max-width: 700px;
+  margin: 40px auto;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  color: #333;
+}
+
+.titulo {
+  text-align: center;
+  color: #1a1a1a;
+  margin-bottom: 24px;
+}
+
+.lista-boletos {
+  list-style: none; 
+  padding: 0;
+}
+
+.tarjeta-boleto {
+  background: #ffffff;
+  margin-bottom: 16px;
+  padding: 20px;
+  border: 1px solid #e1e4e8;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+  transition: transform 0.2s ease, box-shadow 0.2s ease; 
+}
+
+
+.tarjeta-boleto:hover {
+  transform: translateY(-3px); 
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.08);
+  border-color: #007bff;
+  cursor: pointer;
+}
+
+.info-etiqueta {
+  font-weight: 600;
+  color: #555;
+}

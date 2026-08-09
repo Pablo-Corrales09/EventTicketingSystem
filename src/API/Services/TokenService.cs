@@ -28,6 +28,12 @@ namespace API.Services
                 new Claim(ClaimTypes.Name, usuario.Nombre ?? string.Empty)
             };
 
+            //Agrega el rol del usuario como claim para reconocerlo en el token.
+            if (usuario.IdRoleNavigation != null)
+            {
+                claims.Add(new Claim(ClaimTypes.Role, usuario.IdRoleNavigation.NombreRole));
+            }
+
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = new ClaimsIdentity(claims),

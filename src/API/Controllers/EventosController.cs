@@ -44,10 +44,11 @@ namespace API.Controllers
             return evento == null ? NotFound() : Ok(evento);
         }
 
+        // POST: api/Eventos/crear
+        // Endpoint para insertar un evento nuevo.
         [HttpPost("crear")]
-        public async Task<ActionResult<EventoDto>> CrearEvento([FromBody] EventoCreacionDto request)
+        public async Task<ActionResult<EventoDto>> CrearEvento([FromForm] EventoCreacionDto request)
         {
-            
             var eventoCreado = await _eventoService.CrearEventoAsync(request);
 
             if (eventoCreado == null)
@@ -57,5 +58,23 @@ namespace API.Controllers
             return Ok(eventoCreado); 
         }
 
+
+        // PUT: api/Eventos/actualizar/{id}
+        // Endpoint para actualizar un evento existente y/o agregarle una imagen.
+        [HttpPut("actualizar/{id}")]
+        public async Task<ActionResult<EventoDto>> ActualizarEvento(int id, [FromForm] EventoCreacionDto request)
+        {
+            var eventoActualizado = await _eventoService.ActualizarEventoAsync(id, request);
+
+            if (eventoActualizado == null)
+            {
+                return NotFound(new { Mensaje = $"No se encontró ningún evento con el ID {id}." });
+            }
+
+            return Ok(eventoActualizado);
+        }
+
     }
 }
+
+

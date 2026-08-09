@@ -11,5 +11,6 @@ namespace API.Dtos
         public DateTime FechaEvento{get; set;}
         [Required(ErrorMessage = "La hora del evento es obligatoria.")]
         public TimeOnly HoraEvento{get; set;}
+        public string? ImagenUrl { get; set; }         
     }
 }
