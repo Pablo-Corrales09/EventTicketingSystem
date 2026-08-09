@@ -16,6 +16,13 @@ public class CompraController : Controller
     [HttpGet]
     public async Task<IActionResult> Comprar(int idEventoLocalidad)
     {
+        var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+
+        if (idUsuario == null)
+        {
+            return RedirectToAction("Login", "Auth");
+        }
+
         var client = _httpClientFactory.CreateClient("API");
 
         try
@@ -51,6 +58,8 @@ public class CompraController : Controller
                 Precio =
                     localidadSeleccionada.Precio,
 
+                IdUsuario = idUsuario.Value,
+
                 IdMedioPago = 1
             };
 
@@ -71,12 +80,19 @@ public class CompraController : Controller
         ProcesoPagoViewModel modelo
     )
     {
+        var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+
+        if (idUsuario == null)
+        {
+            return RedirectToAction("Login", "Auth");
+        }
+
         var client = _httpClientFactory.CreateClient("API");
 
         var compraRequest = new
         {
             IdEventoLocalidad = modelo.IdEventoLocalidad,
-            IdUsuario = modelo.IdUsuario,
+            IdUsuario = idUsuario.Value,
             IdMedioPago = modelo.IdMedioPago
         };
 

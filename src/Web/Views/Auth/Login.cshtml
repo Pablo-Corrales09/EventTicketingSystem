@@ -1,0 +1,71 @@
+@model Web.Models.LoginViewModel
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h3 class="mb-0">Iniciar Sesión</h3>
+                </div>
+
+                <div class="card-body p-4">
+
+                    @if (!ViewData.ModelState.IsValid)
+                    {
+                        <div class="alert alert-danger">
+                            <div asp-validation-summary="All" class="mb-0"></div>
+                        </div>
+                    }
+
+                    <form asp-action="Login" method="post">
+
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label">
+                                Correo electrónico
+                            </label>
+
+                            <input asp-for="Correo"
+                                   class="form-control"
+                                   placeholder="correo@ejemplo.com" />
+
+                            <span asp-validation-for="Correo"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Contrasena" class="form-label">
+                                Contraseña
+                            </label>
+
+                            <input asp-for="Contrasena"
+                                   class="form-control"
+                                   placeholder="Ingrese su contraseña" />
+
+                            <span asp-validation-for="Contrasena"
+                                  class="text-danger"></span>
+                        </div>
+
+                        <div class="d-grid mt-4">
+                            <button type="submit"
+                                    class="btn btn-primary btn-lg">
+                                Iniciar Sesión
+                            </button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
