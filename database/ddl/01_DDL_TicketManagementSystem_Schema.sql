@@ -44,10 +44,16 @@ CREATE TABLE evento(
 );
 GO
 
+//Agrega columna para el manejo de las imagenes.
+ALTER TABLE evento
+ADD image_evento VARCHAR(255) NULL;
+GO
+
 SELECT * FROM evento;
 
 ALTER TABLE evento
 ADD IdSede INT NULL;
+
 
 ALTER TABLE evento
 ADD CONSTRAINT FK_evento_sede_evento 
@@ -63,6 +69,8 @@ CREATE TABLE localidad(
     CONSTRAINT FK_localidad_sede_evento FOREIGN KEY (id_sede_evento) REFERENCES sede_evento(id_sede_evento)
 );
 GO
+
+
 CREATE TABLE factura(
     id_factura INT IDENTITY(1,1),
     id_usuario INT NOT NULL,
@@ -87,6 +95,7 @@ CREATE TABLE evento_localidad(
     CONSTRAINT FK_localidad FOREIGN KEY(id_localidad) REFERENCES localidad(id_localidad)
 );
 GO
+
 
 CREATE TABLE boleto(
     id_boleto INT IDENTITY(1,1),

@@ -13,9 +13,12 @@ public partial class Evento
 
     public TimeOnly HoraEvento { get; set; }
 
-    public int? IdSede{ get; set; }
+    public int? IdSede { get; set; }
 
-    public virtual SedeEvento? IdSedeNavigation { get; set; }
+    //Agrega la propiedad ImageEvento para el manejo de las imagenes relacionadas a un evento.
+    public string? ImageEvento { get; set; }
 
     public virtual ICollection<EventoLocalidad> EventoLocalidads { get; set; } = new List<EventoLocalidad>();
+
+    public virtual SedeEvento? IdSedeNavigation { get; set; }
 }

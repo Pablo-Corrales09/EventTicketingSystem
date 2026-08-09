@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Net.Http.Json;
 using Microsoft.AspNetCore.Mvc;
 using Web.Models;
 
@@ -6,9 +7,27 @@ namespace Web.Controllers;
 
 public class HomeController : Controller
 {
-    public IActionResult Index()
+    private readonly IHttpClientFactory _httpClientFactory;
+
+    public HomeController(IHttpClientFactory httpClientFactory)
     {
-        return View();
+        _httpClientFactory = httpClientFactory;
+    }
+
+    public async Task<IActionResult> Index()
+    {
+        var client = _httpClientFactory.CreateClient("API");
+
+        try
+        {
+            var eventos = await client.GetFromJsonAsync<List<EventoViewModel>>("api/Eventos");
+            return View(eventos ?? new List<EventoViewModel>());
+        }
+        catch (HttpRequestException)
+        {
+            ViewBag.Error = "No fue posible conectarse con la API de eventos.";
+            return View(new List<EventoViewModel>());
+        }
     }
 
     public IActionResult Privacy()

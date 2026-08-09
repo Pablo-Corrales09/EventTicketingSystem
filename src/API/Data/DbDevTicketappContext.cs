@@ -86,6 +86,10 @@ public partial class DbDevTicketappContext : DbContext
                 .HasColumnType("datetime")
                 .HasColumnName("fecha_evento");
             entity.Property(e => e.HoraEvento).HasColumnName("hora_evento");
+            entity.Property(e => e.ImageEvento)
+                .HasMaxLength(255)
+                .IsUnicode(false)
+                .HasColumnName("image_evento");
             entity.Property(e => e.NombreEvento)
                 .HasMaxLength(100)
                 .HasColumnName("nombre_evento");

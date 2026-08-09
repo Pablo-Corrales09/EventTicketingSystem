@@ -47,6 +47,18 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirAngular",
+        policy => policy.WithOrigins("http://localhost:4200")
+                        .AllowAnyHeader()
+                        .AllowAnyMethod());
+});
+
+
+
+
 var app = builder.Build();
 
 app.Use(async (context, next) =>
@@ -77,6 +89,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseCors("PermitirAngular");
 
 app.UseAuthentication(); 
 app.UseAuthorization();  
