@@ -6,6 +6,7 @@ public class EventoSedeViewModel
     public string NombreEvento { get; set; } = string.Empty;
     public DateTime FechaEvento { get; set; }
     public TimeSpan HoraEvento { get; set; }
+    public string? ImagenUrl { get; set; }
     public SedeViewModel Sede { get; set; } = new();
     public List<EventoLocalidadViewModel> Localidades { get; set; } = new();
 }

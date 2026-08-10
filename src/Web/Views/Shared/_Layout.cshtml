@@ -327,6 +327,7 @@
                     .then(({ ok, body }) => {
                         if (ok) {
                             mostrarExito(body.mensaje);
+                            document.dispatchEvent(new CustomEvent('auth:actualizado', { detail: body }));
                             setTimeout(() => {
                                 modal.hide();
                                 mostrarVista('login');

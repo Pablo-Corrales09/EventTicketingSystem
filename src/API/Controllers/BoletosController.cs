@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using API.Dtos;
 using API.Services;
 
@@ -16,9 +18,17 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<BoletoDto>>> GetBoletos()
+        public async Task<ActionResult<IEnumerable<BoletoDto>>> GetBoletos(
+            int? usuarioId = null,
+            string? numeroBoleto = null,
+            string? nombreEvento = null,
+            string? nombreCliente = null)
         {
-            return Ok(await _boletoService.ObtenerTodosAsync());
+            return Ok(await _boletoService.ObtenerTodosAsync(
+                usuarioId,
+                numeroBoleto,
+                nombreEvento,
+                nombreCliente));
         }
 
         [HttpGet("{id:int}")]
@@ -35,13 +45,16 @@ namespace API.Controllers
             return boleto == null ? NotFound() : Ok(boleto);
         }
 
+        [Authorize]
+        [EnableRateLimiting("CompraUsuario")]
         [HttpPost("comprar")]
         public async Task<ActionResult<BoletoDto>> CompraDeBoleto([FromBody] BoletoCreacionDto request)
         {
             var boletoCreado = await _boletoService.ComprarBoleto(
                 request.IdEventoLocalidad,
                 request.IdUsuario,
-                request.IdMedioPago
+                request.IdMedioPago,
+                request.Cantidad
             );
 
             if (boletoCreado == null)

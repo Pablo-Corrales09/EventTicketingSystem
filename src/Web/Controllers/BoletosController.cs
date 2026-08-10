@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http.Json;
+using Web.Helpers;
 using Web.Models;
 
 namespace Web.Controllers;
@@ -15,13 +16,38 @@ public class BoletosController : Controller
 
     // GET: /Boletos
     // Consume: api/Boletos
-    public async Task<IActionResult> Index()
+    public async Task<IActionResult> Index(string? numeroBoleto, string? nombreEvento, string? nombreCliente)
     {
         var client = _httpClientFactory.CreateClient("API");
 
         try
         {
-            var boletos = await client.GetFromJsonAsync<List<BoletoViewModel>>("api/Boletos");
+            var esAdmin = AuthCookieHelper.EsAdmin(Request);
+            ViewBag.EsAdmin = esAdmin;
+
+            var parametros = new List<(string, object?)>
+            {
+                ("numeroBoleto", numeroBoleto),
+                ("nombreEvento", nombreEvento)
+            };
+
+            if (esAdmin)
+            {
+                parametros.Add(("nombreCliente", nombreCliente));
+            }
+            else
+            {
+                var sesion = AuthCookieHelper.ObtenerSesion(Request);
+                if (!sesion.Autenticado)
+                {
+                    ViewBag.Aviso = "Inicia sesión para ver tus boletos.";
+                    return View(new List<BoletoViewModel>());
+                }
+                parametros.Add(("usuarioId", sesion.IdUsuario));
+            }
+
+            var query = QueryBuilder.Build(parametros.ToArray());
+            var boletos = await client.GetFromJsonAsync<List<BoletoViewModel>>($"api/Boletos?{query}");
             return View(boletos ?? new List<BoletoViewModel>());
         }
         catch (HttpRequestException)

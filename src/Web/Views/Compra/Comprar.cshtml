@@ -2,64 +2,345 @@
 
 @{
     ViewData["Title"] = "Confirmar Compra";
+    var esCR = System.Globalization.CultureInfo.GetCultureInfo("es-CR");
 }
 
-<div class="container mt-5">
+<div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow border-0">
-                <div class="card-header bg-primary text-white text-center py-3">
-                    <h3 class="mb-0">Resumen de tu Compra</h3>
+        <div class="col-md-8 col-lg-6">
+            <div class="card resumen-pago border-0 shadow-sm mb-4">
+                <div class="card-header resumen-pago-header text-center py-4">
+                    <h3 class="mb-1 fw-bold">Resumen de tu compra</h3>
+                    <p class="mb-0 small">Revisa los datos y elige tu medio de pago.</p>
                 </div>
                 <div class="card-body p-4">
-                    
-                    @if (!ViewData.ModelState.IsValid)
+
+                    <div class="alert alert-danger d-none shadow-sm" id="alertaPago" role="alert"></div>
+                    <div class="alert alert-success d-none shadow-sm" id="exitoPago" role="alert"></div>
+
+                    @if (Model.IdUsuario == 0)
                     {
-                        <div class="alert alert-danger">
-                            <div asp-validation-summary="All" class="text-danger mb-0"></div>
+                        <div class="alert alert-warning d-flex align-items-center shadow-sm" role="alert">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="me-2 flex-shrink-0" viewBox="0 0 16 16">
+                                <path d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2zm3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/>
+                            </svg>
+                            <div>
+                                Debes <a href="#" class="fw-semibold link-enlace" id="enlaceIniciarSesion">iniciar sesión</a> para completar la compra.
+                            </div>
                         </div>
                     }
 
                     <ul class="list-group list-group-flush mb-4">
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <strong>Evento:</strong>
-                            <span class="text-secondary">@Model.NombreEvento</span>
+                            <span class="text-secondary text-end">@Model.NombreEvento</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
                             <strong>Localidad:</strong>
-                            <span class="text-secondary">@Model.NombreLocalidad</span>
+                            <span class="text-secondary text-end">@Model.NombreLocalidad</span>
                         </li>
                         <li class="list-group-item d-flex justify-content-between align-items-center">
-                            <strong>Precio del Boleto:</strong>
-                            <span class="fs-5 text-success fw-bold">₡@Model.Precio.ToString("N0")</span>
+                            <strong>Precio por boleto:</strong>
+                            <span class="text-secondary">@Model.Precio.ToString("C0", esCR)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            <strong>Cantidad:</strong>
+                            <span class="text-secondary">@Model.Cantidad boleto(s)</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center fs-5">
+                            <strong>Total a pagar:</strong>
+                            <span class="fw-bold text-success">@Model.Total.ToString("C0", esCR)</span>
                         </li>
                     </ul>
 
-                    <form asp-action="ProcesarPago" method="post">
-                        <input type="hidden" asp-for="IdEventoLocalidad" />
-                        <input type="hidden" asp-for="NombreEvento" />
-                        <input type="hidden" asp-for="NombreLocalidad" />
-                        <input type="hidden" asp-for="Precio" />
-                        <input type="hidden" asp-for="IdUsuario" />
+                    <div class="mb-3">
+                        <label for="IdMedioPago" class="form-label fw-bold">Selecciona el medio de pago</label>
+                        <select id="IdMedioPago" class="form-select" asp-for="IdMedioPago">
+                            <option value="" selected disabled>Seleccione un medio de pago</option>
+                            @foreach (var medio in (List<Web.Models.MedioPagoViewModel>)(ViewBag.MediosPago ?? new List<Web.Models.MedioPagoViewModel>()))
+                            {
+                                <option value="@medio.IdMedioPago" data-tarjeta="@medio.EsTarjeta.ToString().ToLowerInvariant()">@medio.Nombre</option>
+                            }
+                        </select>
+                    </div>
 
-                        <div class="mb-3">
-                            <label asp-for="IdMedioPago" class="form-label fw-bold">Selecciona el Medio de Pago</label>
-                            <select asp-for="IdMedioPago" class="form-select">
-                                <option value="1">Tarjeta de Crédito / Débito</option>
-                                <option value="2">SINPE Móvil</option>
-                                <option value="3">PayPal</option>
-                            </select>
-                            <span asp-validation-for="IdMedioPago" class="text-danger"></span>
+                    <div id="seccionTarjeta" class="d-none mb-3">
+                        <div class="card tarjeta-demo shadow-sm">
+                            <div class="card-body">
+                                <h6 class="fw-bold mb-3">Datos de la tarjeta</h6>
+                                <div class="alert alert-info py-2 small mb-3">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                                        <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.9 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                                    </svg>
+                                    Formulario de demostración. No se realizará ningún cargo real.
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cardTitular" class="form-label">Nombre del titular</label>
+                                    <input type="text" id="cardTitular" class="form-control" placeholder="Nombre tal como aparece en la tarjeta" maxlength="60" required autocomplete="cc-name" />
+                                    <div class="invalid-feedback">Ingresa el nombre del titular.</div>
+                                </div>
+                                <div class="mb-3">
+                                    <label for="cardNumero" class="form-label">Número de tarjeta</label>
+                                    <input type="text" id="cardNumero" class="form-control" placeholder="1234 5678 9012 3456" inputmode="numeric" maxlength="23" required autocomplete="cc-number" />
+                                    <div class="invalid-feedback">Ingresa un número de tarjeta válido (16 a 19 dígitos).</div>
+                                </div>
+                                <div class="row g-3">
+                                    <div class="col-6">
+                                        <label for="cardExpiracion" class="form-label">Fecha de expiración</label>
+                                        <input type="text" id="cardExpiracion" class="form-control" placeholder="MM/AA" inputmode="numeric" maxlength="5" required autocomplete="cc-exp" />
+                                        <div class="invalid-feedback">Ingresa una fecha válida (MM/AA).</div>
+                                    </div>
+                                    <div class="col-6">
+                                        <label for="cardCvv" class="form-label">CVV</label>
+                                        <input type="text" id="cardCvv" class="form-control" placeholder="123" inputmode="numeric" maxlength="4" required autocomplete="cc-csc" />
+                                        <div class="invalid-feedback">El CVV debe tener 3 o 4 dígitos.</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <form id="formularioPago" novalidate>
+                        @Html.AntiForgeryToken()
+                        <input type="hidden" asp-for="IdEventoLocalidad" />
+                        <input type="hidden" asp-for="Cantidad" />
 
                         <div class="d-grid gap-2 mt-4">
-                            <button type="submit" class="btn btn-success btn-lg">Pagar y Generar Factura</button>
-                            <a asp-controller="Eventos" asp-action="Index" class="btn btn-outline-secondary">Cancelar y Volver</a>
+                            <button type="submit" class="btn btn-success btn-lg btn-pagar">
+                                Pagar y generar factura
+                            </button>
+                            <a asp-controller="Eventos" asp-action="Details" asp-route-id="@Model.IdEvento" class="btn btn-outline-secondary">Volver al evento</a>
                         </div>
                     </form>
-
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<style>
+    .resumen-pago {
+        border-radius: 1.25rem;
+        overflow: hidden;
+    }
+
+    .resumen-pago-header {
+        background: linear-gradient(135deg, #eef2ff 0%, #fae8ff 100%);
+        border-bottom: none;
+    }
+
+    .resumen-pago .form-select {
+        border-radius: 0.75rem;
+        padding: 0.6rem 0.9rem;
+    }
+
+    .tarjeta-demo {
+        border-radius: 1rem;
+        border: 1px dashed #c7d2fe;
+        background: #f8faff;
+    }
+
+    .tarjeta-demo .form-control {
+        border-radius: 0.6rem;
+    }
+
+    .btn-pagar {
+        border-radius: 50rem;
+        font-weight: 600;
+        box-shadow: 0 0.25rem 0.5rem rgba(25, 135, 84, 0.2);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-pagar:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(25, 135, 84, 0.3);
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const alerta = document.getElementById('alertaPago');
+        const exito = document.getElementById('exitoPago');
+        const boton = document.querySelector('.btn-pagar');
+        const formulario = document.getElementById('formularioPago');
+        const modalLogin = document.getElementById('modalLogin');
+
+        const selectMedio = document.getElementById('IdMedioPago');
+        const seccionTarjeta = document.getElementById('seccionTarjeta');
+        const camposTarjeta = ['cardTitular', 'cardNumero', 'cardExpiracion', 'cardCvv']
+            .map(id => document.getElementById(id));
+
+        function mostrarError(mensaje) {
+            exito.classList.add('d-none');
+            alerta.textContent = mensaje;
+            alerta.classList.remove('d-none');
+        }
+
+        function abrirLoginYReanudar() {
+            sessionStorage.setItem('compraRedireccion', window.location.href);
+
+            if (modalLogin) {
+                bootstrap.Modal.getOrCreateInstance(modalLogin).show();
+            }
+        }
+
+        function validarCampo(campo) {
+            const invalido = !campo.checkValidity();
+            campo.classList.toggle('is-invalid', invalido);
+            return !invalido;
+        }
+
+        function validarTarjeta() {
+            let valido = true;
+            camposTarjeta.forEach(function (campo) {
+                if (!validarCampo(campo)) {
+                    valido = false;
+                }
+            });
+            return valido;
+        }
+
+        function esMetodoTarjeta() {
+            const opcion = selectMedio.selectedOptions[0];
+            return !!opcion && opcion.dataset.tarjeta === 'true';
+        }
+
+        function sincronizarTarjeta() {
+            const esTarjeta = esMetodoTarjeta();
+            seccionTarjeta.classList.toggle('d-none', !esTarjeta);
+
+            if (!esTarjeta) {
+                camposTarjeta.forEach(function (campo) {
+                    campo.classList.remove('is-invalid');
+                    campo.setCustomValidity('');
+                });
+            }
+        }
+
+        selectMedio.addEventListener('change', sincronizarTarjeta);
+
+        document.getElementById('cardTitular').addEventListener('input', function () {
+            validarCampo(this);
+        });
+
+        document.getElementById('cardNumero').addEventListener('input', function () {
+            const soloDigitos = this.value.replace(/\D/g, '').slice(0, 19);
+            this.value = soloDigitos.replace(/(.{4})/g, '$1 ').trim();
+            this.setCustomValidity(
+                soloDigitos.length >= 16 && soloDigitos.length <= 19
+                    ? ''
+                    : 'Ingresa un número de tarjeta válido (16 a 19 dígitos).'
+            );
+            validarCampo(this);
+        });
+
+        document.getElementById('cardExpiracion').addEventListener('input', function () {
+            const soloDigitos = this.value.replace(/\D/g, '').slice(0, 4);
+            this.value = soloDigitos.length >= 3
+                ? soloDigitos.slice(0, 2) + '/' + soloDigitos.slice(2)
+                : soloDigitos;
+
+            const mes = Number(this.value.slice(0, 2));
+            this.setCustomValidity(
+                /^\d{2}\/\d{2}$/.test(this.value) && mes >= 1 && mes <= 12
+                    ? ''
+                    : 'Fecha de expiración inválida (MM/AA).'
+            );
+            validarCampo(this);
+        });
+
+        document.getElementById('cardCvv').addEventListener('input', function () {
+            this.value = this.value.replace(/\D/g, '').slice(0, 4);
+            this.setCustomValidity(this.value.length >= 3 ? '' : 'El CVV debe tener 3 o 4 dígitos.');
+            validarCampo(this);
+        });
+
+        const enlaceIniciarSesion = document.getElementById('enlaceIniciarSesion');
+        if (enlaceIniciarSesion) {
+            enlaceIniciarSesion.addEventListener('click', function (e) {
+                e.preventDefault();
+                abrirLoginYReanudar();
+            });
+        }
+
+        document.addEventListener('auth:actualizado', function () {
+            const redireccion = sessionStorage.getItem('compraRedireccion');
+            if (redireccion) {
+                sessionStorage.removeItem('compraRedireccion');
+                window.location.href = redireccion;
+            }
+        });
+
+        formulario.addEventListener('submit', function (e) {
+            e.preventDefault();
+
+            alerta.classList.add('d-none');
+            exito.classList.add('d-none');
+
+            const metodo = selectMedio.value;
+
+            if (!metodo) {
+                mostrarError('Seleccione un medio de pago para continuar.');
+                selectMedio.focus();
+                return;
+            }
+
+            if (esMetodoTarjeta() && !validarTarjeta()) {
+                mostrarError('Complete correctamente los datos de la tarjeta para continuar.');
+                const primerInvalido = camposTarjeta.find(function (campo) {
+                    return campo.classList.contains('is-invalid');
+                });
+                if (primerInvalido) {
+                    primerInvalido.focus();
+                }
+                return;
+            }
+
+            const tokenAntiForgery = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+            boton.disabled = true;
+            boton.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Procesando pago...';
+
+            fetch('/Compra/ProcesarPago', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': tokenAntiForgery
+                },
+                body: JSON.stringify({
+                    idEventoLocalidad: document.getElementById('IdEventoLocalidad').value,
+                    cantidad: document.getElementById('Cantidad').value,
+                    idMedioPago: metodo
+                })
+            })
+                .then(async res => ({ ok: res.ok, status: res.status, body: await res.json() }))
+                .then(({ ok, status, body }) => {
+                    if (body && body.requiereLogin) {
+                        mostrarError(body.mensaje || 'Debes iniciar sesión para completar la compra.');
+                        abrirLoginYReanudar();
+                        return;
+                    }
+
+                    if (body && body.exito && body.idBoleto) {
+                        window.location.href = '/Boletos/Details/' + body.idBoleto;
+                        return;
+                    }
+
+                    if (status === 429) {
+                        mostrarError('Has superado el límite de compras permitidas. Espera un momento e inténtalo de nuevo.');
+                        return;
+                    }
+
+                    mostrarError(body.mensaje || 'No se pudo procesar el pago. Verifica los datos e inténtalo de nuevo.');
+                })
+                .catch(() => mostrarError('Error de conexión con el servidor. Inténtalo de nuevo.'))
+                .finally(() => {
+                    boton.disabled = false;
+                    boton.innerHTML = 'Pagar y generar factura';
+                });
+        });
+
+        sincronizarTarjeta();
+    });
+</script>

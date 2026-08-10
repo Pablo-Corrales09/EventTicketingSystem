@@ -34,6 +34,14 @@ namespace API.Controllers
             return Ok(await _eventoService.ObtenerEventosSedeAsync());
         }
 
+        // GET: api/Eventos/mis-eventos?usuarioId={id}
+        // Endpoint para obtener los eventos en los que el usuario tiene boletos comprados.
+        [HttpGet("mis-eventos")]
+        public async Task<ActionResult<IEnumerable<EventoSedeDto>>> GetMisEventos([FromQuery] int usuarioId)
+        {
+            return Ok(await _eventoService.ObtenerEventosDeUsuarioAsync(usuarioId));
+        }
+
 
         // GET: api/Eventos/id 
         // Endpoint para obtener un evento por su ID, incluyendo la información de la sede asociada al evento.

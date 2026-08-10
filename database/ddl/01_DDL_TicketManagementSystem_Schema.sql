@@ -5,6 +5,12 @@ CREATE TABLE role (
 );
 GO
 
+UPDATE [usuario]
+SET id_role = 1
+WHERE correo = 'pablo.prueba@correo.com';
+GO
+
+
 
 CREATE TABLE usuario (
     id_usuario INT IDENTITY(1,1),

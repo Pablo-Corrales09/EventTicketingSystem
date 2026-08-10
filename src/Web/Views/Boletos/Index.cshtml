@@ -1,38 +1,103 @@
 @model IEnumerable<Web.Models.BoletoViewModel>
 
 @{
-    ViewData["Title"] = "Listado de Boletos";
+    ViewData["Title"] = ViewBag.EsAdmin == true ? "Gestión de Boletos" : "Mis Boletos";
+    var esAdmin = ViewBag.EsAdmin == true;
 }
 
-<h2>@ViewData["Title"]</h2>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h1 class="fw-bold text-dark mb-0">@ViewData["Title"]</h1>
+            <p class="text-muted mb-0">
+                @(esAdmin ? "Consulta y filtra todos los boletos vendidos." : "Estos son los boletos que has comprado.")
+            </p>
+        </div>
+    </div>
 
-@if (ViewBag.Error != null)
-{
-    <div class="alert alert-danger">@ViewBag.Error</div>
-}
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger shadow-sm">@ViewBag.Error</div>
+    }
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>Número</th>
-            <th>Evento</th>
-            <th>Precio</th>
-            <th>Acciones</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
-            <tr>
-                <td>@item.IdBoleto</td>
-                <td>@item.NumBoleto</td>
-                <td>@item.NombreEvento</td>
-                <td>@item.Precio</td>
-                <td>
-                    <a asp-action="Details" asp-route-id="@item.IdBoleto" class="btn btn-info btn-sm">Detalles</a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+    @if (ViewBag.Aviso != null)
+    {
+        <div class="alert alert-info shadow-sm">@ViewBag.Aviso</div>
+    }
+
+    <form method="get" class="card card-body shadow-sm mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small mb-1">Número de boleto</label>
+                <input type="text" name="numeroBoleto" value="@Context.Request.Query["numeroBoleto"]"
+                       class="form-control" placeholder="BOL-..." />
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-semibold small mb-1">Evento</label>
+                <input type="text" name="nombreEvento" value="@Context.Request.Query["nombreEvento"]"
+                       class="form-control" placeholder="Nombre del evento" />
+            </div>
+            @if (esAdmin)
+            {
+                <div class="col-md-3">
+                    <label class="form-label fw-semibold small mb-1">Cliente</label>
+                    <input type="text" name="nombreCliente" value="@Context.Request.Query["nombreCliente"]"
+                           class="form-control" placeholder="Nombre del cliente" />
+                </div>
+            }
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-primary flex-fill">Buscar</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+            </div>
+        </div>
+    </form>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info shadow-sm">
+            No hay boletos que coincidan con la búsqueda.
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive shadow-sm rounded">
+            <table class="table table-striped table-bordered align-middle bg-white mb-0">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Número</th>
+                        @if (esAdmin)
+                        {
+                            <th>Cliente</th>
+                        }
+                        <th>Evento</th>
+                        <th>Localidad</th>
+                        <th class="text-end">Precio</th>
+                        <th class="text-center">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.IdBoleto</td>
+                            <td>@item.NumBoleto</td>
+                            @if (esAdmin)
+                            {
+                                <td>@item.NombreUsuario @item.ApellidoUsuario</td>
+                            }
+                            <td>@item.NombreEvento</td>
+                            <td>@item.NombreLocalidad</td>
+                            <td class="text-end">₡@item.Precio.ToString("N2")</td>
+                            <td class="text-center">
+                                <a asp-action="Details" asp-route-id="@item.IdBoleto" class="btn btn-info btn-sm">
+                                    Ver boleto
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

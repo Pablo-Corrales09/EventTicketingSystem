@@ -3,6 +3,7 @@ using API.Dtos;
 using Microsoft.EntityFrameworkCore;
 using Azure.Storage.Blobs;
 using Microsoft.Extensions.Configuration;
+using API.Models;
 
 namespace API.Services
 {
@@ -23,6 +24,16 @@ namespace API.Services
             var eventos = await _context.Eventos
                 .ToListAsync();
             return eventos.Select(e => MapearEventoLocalidadDto(e)).ToList();
+        }
+
+        //Funcion para obtener un evento por su id
+        public async Task<EventoSedeDto?> ObtenerDetalleEventoAsync(int id)
+        {
+            return await _context.Eventos
+            .Include(e => e.IdSedeNavigation)
+            .Where(e => e.IdEvento == id)
+            .Select(e => MapearEventoSedeDto(e))
+            .FirstOrDefaultAsync();    
         }
 
         // Método para crear un nuevo evento en la DB subiendo la imagen a Azure
@@ -124,6 +135,19 @@ namespace API.Services
                 HoraEvento = e.HoraEvento,
                 ImagenUrl = e.ImageEvento 
             };
+        }
+
+        // Función para obtener los eventos en los que el usuario tiene boletos comprados ("mis eventos"),
+        // incluyendo la información de la sede asociada a cada evento.
+        public async Task<List<EventoSedeDto>> ObtenerEventosDeUsuarioAsync(int usuarioId)
+        {
+            var eventos = await _context.Eventos
+                .Include(e => e.IdSedeNavigation)
+                .Where(e => e.EventoLocalidads.Any(el =>
+                    el.Boletos.Any(b => b.IdUsuario == usuarioId)))
+                .ToListAsync();
+
+            return eventos.Select(e => MapearEventoSedeDto(e)).ToList();
         }
 
         // Función para obtener los eventos de la DB y mapearlos a un EventoSedeDto, incluyendo la información de la sede asociada al evento.

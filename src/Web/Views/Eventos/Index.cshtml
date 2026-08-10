@@ -1,7 +1,7 @@
 @model IEnumerable<Web.Models.EventoSedeViewModel>
 
 @{
-    ViewData["Title"] = "Eventos Disponibles";
+    ViewData["Title"] = ViewBag.Titulo ?? "Eventos Disponibles";
 }
 
 <!-- Título de la vista añadido -->
@@ -9,9 +9,16 @@
     <div class="row mb-4">
         <div class="col-12 text-center">
             <h1 class="fw-bold text-primary display-5">
-                <i class="bi bi-calendar-event me-2"></i>Eventos Disponibles
+                <i class="bi bi-calendar-event me-2"></i>@ViewData["Title"]
             </h1>
             <p class="text-muted">Explora nuestra cartelera, descubre las sedes y asegura tus entradas.</p>
+
+            @if (ViewBag.EsAdmin == true)
+            {
+                <a asp-action="Crear" class="btn btn-success mt-2 shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> Crear Evento
+                </a>
+            }
         </div>
     </div>
 
@@ -50,12 +57,23 @@
                                 <i class="bi bi-geo-alt me-1"></i><strong>Sede:</strong> @(evento.Sede?.NombreSedeEvento ?? "Sin sede")
                             </p>
 
-                            <button class="btn btn-outline-primary mt-auto btn-ver-detalles shadow-sm"
-                                    data-id="@evento.IdEvento"
-                                    data-bs-toggle="modal"
-                                    data-bs-target="#modalDetallesEvento">
-                                <i class="bi bi-ticket-perforated me-1"></i> Ver Detalles y Comprar
-                            </button>
+                            <div class="d-flex gap-2">
+                                <button class="btn btn-outline-primary flex-fill btn-ver-detalles shadow-sm"
+                                        data-id="@evento.IdEvento"
+                                        data-bs-toggle="modal"
+                                        data-bs-target="#modalDetallesEvento">
+                                    <i class="bi bi-ticket-perforated me-1"></i> Ver Detalles y Comprar
+                                </button>
+
+                                @if (ViewBag.EsAdmin == true)
+                                {
+                                    <a asp-action="Editar" asp-route-id="@evento.IdEvento"
+                                       class="btn btn-outline-secondary shadow-sm"
+                                       title="Editar evento">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>

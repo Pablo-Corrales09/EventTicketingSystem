@@ -7,5 +7,6 @@ namespace API.Dtos
         public int IdFactura { get; set; }
         public int IdUsuario { get; set; }
         public int IdMedioPago { get; set; }
+        public int Cantidad { get; set; } = 1;
     }
 }

@@ -42,11 +42,12 @@ public class AuthController : Controller
                 return Unauthorized(new { mensaje = "Correo o contraseña incorrectos." });
             }
 
-            EstablecerCookies(model.Recordarme, contenido.Token, contenido.Nombre ?? string.Empty, contenido.Correo ?? string.Empty, contenido.Role);
+            EstablecerCookies(model.Recordarme, contenido.Token, contenido.IdUsuario, contenido.Nombre ?? string.Empty, contenido.Correo ?? string.Empty, contenido.Role);
 
             return Ok(new
             {
                 mensaje = "Inicio de sesión exitoso.",
+                idUsuario = contenido.IdUsuario,
                 nombre = contenido.Nombre,
                 correo = contenido.Correo,
                 role = contenido.Role
@@ -116,9 +117,10 @@ public class AuthController : Controller
         return Ok(new UsuarioSesionViewModel
         {
             Autenticado = true,
-            Nombre = partes.Length > 0 ? partes[0] : string.Empty,
-            Correo = partes.Length > 1 ? partes[1] : string.Empty,
-            Role = partes.Length > 2 ? partes[2] : null
+            IdUsuario = int.TryParse(partes.Length > 0 ? partes[0] : null, out var id) ? id : 0,
+            Nombre = partes.Length > 1 ? partes[1] : string.Empty,
+            Correo = partes.Length > 2 ? partes[2] : string.Empty,
+            Role = partes.Length > 3 ? partes[3] : null
         });
     }
 
@@ -131,7 +133,7 @@ public class AuthController : Controller
         return Ok(new { mensaje = "Sesión cerrada." });
     }
 
-    private void EstablecerCookies(bool recordarme, string token, string nombre, string correo, string? role)
+    private void EstablecerCookies(bool recordarme, string token, int idUsuario, string nombre, string correo, string? role)
     {
         var opciones = new CookieOptions
         {
@@ -147,7 +149,7 @@ public class AuthController : Controller
 
         Response.Cookies.Append(TokenCookie, token, opciones);
 
-        Response.Cookies.Append(InfoCookie, $"{nombre}|{correo}|{role}", new CookieOptions
+        Response.Cookies.Append(InfoCookie, $"{idUsuario}|{nombre}|{correo}|{role}", new CookieOptions
         {
             HttpOnly = false,
             SameSite = SameSiteMode.Lax,
@@ -159,6 +161,7 @@ public class AuthController : Controller
     private sealed class ResultadoLoginApi
     {
         public string? Token { get; set; }
+        public int IdUsuario { get; set; }
         public string? Nombre { get; set; }
         public string? Correo { get; set; }
         public string? Role { get; set; }

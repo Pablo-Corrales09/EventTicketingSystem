@@ -17,9 +17,19 @@ namespace API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<FacturaResponseDto>>> GetFacturas()
+        public async Task<ActionResult<IEnumerable<FacturaResponseDto>>> GetFacturas(
+            int? usuarioId = null,
+            string? numeroFactura = null,
+            DateTime? fechaDesde = null,
+            DateTime? fechaHasta = null,
+            string? nombreEvento = null)
         {
-            return Ok(await _facturaService.ObtenerTodasAsync());
+            return Ok(await _facturaService.ObtenerTodasAsync(
+                usuarioId,
+                numeroFactura,
+                fechaDesde,
+                fechaHasta,
+                nombreEvento));
         }
 
         [HttpGet("{id}")]

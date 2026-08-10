@@ -76,7 +76,7 @@
                                 <span>@evento.HoraEvento.ToString("HH:mm") hrs</span>
                             </div>
 
-                            <a asp-controller="Eventos" asp-action="Index" class="btn evento-btn mt-auto">
+                            <a asp-controller="Eventos" asp-action="Details" asp-route-id="@evento.IdEvento" class="btn evento-btn mt-auto">
                                 Comprar entradas
                             </a>
                         </div>

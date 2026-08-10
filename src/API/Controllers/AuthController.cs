@@ -37,7 +37,11 @@ public class AuthController : ControllerBase
             return Ok(new 
             {
                 token = token,
-                mensaje = "¡Inicio de sesión exitoso!"
+                mensaje = "¡Inicio de sesión exitoso!",
+                idUsuario = usuario.IdUsuario,
+                nombre = usuario.Nombre,
+                correo = usuario.Correo,
+                role = usuario.IdRoleNavigation?.NombreRole
             });
         }
         catch (Exception ex)

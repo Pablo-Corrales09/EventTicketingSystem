@@ -1,0 +1,366 @@
+@model Web.Models.EventoSedeViewModel
+
+@{
+    ViewData["Title"] = Model.NombreEvento;
+    var esCR = System.Globalization.CultureInfo.GetCultureInfo("es-CR");
+    var inv = System.Globalization.CultureInfo.InvariantCulture;
+    var imagenEvento = string.IsNullOrWhiteSpace(Model.ImagenUrl)
+        ? "https://picsum.photos/seed/evento-" + Model.IdEvento + "/1200/500"
+        : Model.ImagenUrl;
+}
+
+<div class="container py-4">
+
+    <a asp-controller="Eventos" asp-action="Index" class="link-enlace d-inline-flex align-items-center mb-3">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+            <path d="M11.354 1.646a.5.5 0 0 1 0 .708L5.707 8l5.647 5.646a.5.5 0 0 1-.708.708l-6-6a.5.5 0 0 1 0-.708l6-6a.5.5 0 0 1 .708 0z"/>
+        </svg>
+        Volver a eventos
+    </a>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger shadow-sm">@ViewBag.Error</div>
+    }
+    else if (Model.IdEvento == 0)
+    {
+        <div class="alert alert-info shadow-sm">No fue posible cargar la información del evento.</div>
+    }
+    else
+    {
+        <div class="card detalle-hero border-0 shadow-sm overflow-hidden mb-5">
+            <div class="row g-0">
+                <div class="col-md-6 detalle-hero-imagen">
+                    <img src="@imagenEvento"
+                         alt="Imagen del evento @Model.NombreEvento"
+                         loading="lazy"
+                         onerror="this.classList.add('d-none');" />
+                </div>
+                <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center">
+                    <span class="badge detalle-badge align-self-start mb-3 fw-semibold">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
+                            <path d="M4 4.85v.9h1v-.9H4zm7 0v.9h1v-.9h-1zM4 8.3v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 3.45v.9h1v-.9H4zm7 0v.9h1v-.9h-1z"/>
+                            <path d="M0 4.5A1.5 1.5 0 0 1 1.5 3h13A1.5 1.5 0 0 1 16 4.5V6a.5.5 0 0 1-.5.5 1.5 1.5 0 0 0 0 3 .5.5 0 0 1 .5.5v1.5A1.5 1.5 0 0 1 14.5 13h-13A1.5 1.5 0 0 1 0 11.5V10a.5.5 0 0 1 .5-.5 1.5 1.5 0 0 0 0-3A.5.5 0 0 1 0 6V4.5zM1.5 4a.5.5 0 0 0-.5.5v1.05a2.5 2.5 0 0 1 0 4.9v1.05a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-1.05a2.5 2.5 0 0 1 0-4.9V4.5a.5.5 0 0 0-.5-.5h-13z"/>
+                        </svg>
+                        Evento
+                    </span>
+                    <h1 class="fw-bold text-dark mb-3">@Model.NombreEvento</h1>
+
+                    <div class="d-flex align-items-center text-secondary mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2 flex-shrink-0" viewBox="0 0 16 16">
+                            <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
+                            <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
+                        </svg>
+                        <span>@Model.FechaEvento.ToString("dd 'de' MMMM 'de' yyyy", esCR)</span>
+                    </div>
+
+                    <div class="d-flex align-items-center text-secondary mb-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2 flex-shrink-0" viewBox="0 0 16 16">
+                            <path d="M8 3.5a.5.5 0 0 0-1 0V9a.5.5 0 0 0 .252.434l3.5 2a.5.5 0 0 0 .496-.868L8 8.71V3.5z"/>
+                            <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm7-8A7 7 0 1 1 1 8a7 7 0 0 1 14 0z"/>
+                        </svg>
+                        <span>@Model.HoraEvento.ToString(@"hh\:mm") hrs</span>
+                    </div>
+
+                    <div class="d-flex align-items-center text-secondary">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-2 flex-shrink-0" viewBox="0 0 16 16">
+                            <path d="M8 16s6-5.686 6-10A6 6 0 0 0 2 6c0 4.314 6 10 6 10zm0-7a3 3 0 1 1 0-6 3 3 0 0 1 0 6z"/>
+                        </svg>
+                        <span>@(Model.Sede?.NombreSedeEvento ?? "Sede por confirmar")</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <h2 class="fw-bold text-dark mb-4">Selecciona tu localidad</h2>
+
+                @if (Model.Localidades == null || !Model.Localidades.Any())
+                {
+                    <div class="alert alert-info shadow-sm">
+                        No hay localidades disponibles para este evento en este momento.
+                    </div>
+                }
+                else
+                {
+                    <div class="row g-3" id="contenedorLocalidades">
+                        @foreach (var localidad in Model.Localidades)
+                        {
+                            <div class="col-md-6">
+                                <div class="card localidad-card border-0 shadow-sm h-100"
+                                     data-id="@localidad.IdEventoLocalidad"
+                                     data-precio="@localidad.Precio.ToString(inv)"
+                                     data-capacidad="@localidad.CapacidadDisponible"
+                                     data-nombre="@localidad.NombreLocalidad">
+                                    <div class="card-body p-4">
+                                        <div class="d-flex justify-content-between align-items-start mb-2">
+                                            <h5 class="fw-bold text-dark mb-0">@localidad.NombreLocalidad</h5>
+                                            <span class="badge localidad-precio rounded-pill">@localidad.Precio.ToString("C0", esCR)</span>
+                                        </div>
+                                        <p class="text-muted small mb-0">
+                                            <i class="me-1"></i>
+                                            @localidad.CapacidadDisponible boleto(s) disponible(s)
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+
+            <div class="col-lg-4">
+                <div class="card resumen-compra border-0 shadow-sm sticky-top" style="top: 1rem;">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold text-dark mb-3">Tu selección</h5>
+
+                        <div id="resumenLocalidad" class="text-muted small mb-3">
+                            No has seleccionado una localidad.
+                        </div>
+
+                        <div id="zonaCantidad" class="d-none mb-3">
+                            <label for="cantidad" class="form-label fw-semibold">Cantidad de boletos</label>
+                            <div class="input-group stepper">
+                                <button type="button" class="btn btn-outline-secondary" id="btnMenos" aria-label="Disminuir cantidad">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M4 8a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 8z"/>
+                                    </svg>
+                                </button>
+                                <input type="number" class="form-control text-center fw-bold" id="cantidad" value="1" min="1" readonly />
+                                <button type="button" class="btn btn-outline-secondary" id="btnMas" aria-label="Aumentar cantidad">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                                    </svg>
+                                </button>
+                            </div>
+                            <div class="form-text" id="maxCantidad"></div>
+                        </div>
+
+                        <div id="zonaTotal" class="d-none mb-4">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span class="text-muted">Total a pagar</span>
+                                <span class="fw-bold fs-4 text-success" id="total">₡0</span>
+                            </div>
+                        </div>
+
+                        <button type="button" class="btn btn-primary btn-continuar w-100" id="btnContinuar" disabled>
+                            Continuar a compra
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<style>
+    .detalle-hero {
+        border-radius: 1.25rem;
+        background: linear-gradient(135deg, #eef2ff 0%, #fae8ff 100%);
+    }
+
+    .detalle-hero-imagen {
+        min-height: 260px;
+        background: linear-gradient(135deg, #a8ede0 0%, #fed6e3 100%);
+    }
+
+    .detalle-hero-imagen img {
+        width: 100%;
+        height: 100%;
+        min-height: 260px;
+        object-fit: cover;
+    }
+
+    .detalle-badge {
+        background: rgba(13, 110, 253, 0.12);
+        color: #0d6efd;
+    }
+
+    .localidad-card {
+        border-radius: 1rem;
+        cursor: pointer;
+        transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        animation: aparecer 0.5s ease both;
+    }
+
+    .localidad-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 0.75rem 1.5rem rgba(13, 110, 253, 0.12) !important;
+    }
+
+    .localidad-card.seleccionada {
+        border: 2px solid #0d6efd !important;
+        box-shadow: 0 0.75rem 1.5rem rgba(13, 110, 253, 0.18) !important;
+    }
+
+    .localidad-precio {
+        background: rgba(13, 110, 253, 0.1);
+        color: #0d6efd;
+        font-weight: 600;
+    }
+
+    .localidad-card.seleccionada .localidad-precio {
+        background: #0d6efd;
+        color: #fff;
+    }
+
+    .resumen-compra {
+        border-radius: 1.25rem;
+    }
+
+    .stepper .btn {
+        border-radius: 0;
+    }
+
+    .stepper .btn:first-child {
+        border-radius: 0.75rem 0 0 0.75rem;
+    }
+
+    .stepper .btn:last-child {
+        border-radius: 0 0.75rem 0.75rem 0;
+    }
+
+    .stepper .form-control {
+        border-radius: 0;
+        font-size: 1rem;
+    }
+
+    .btn-continuar {
+        border-radius: 50rem;
+        font-weight: 600;
+        padding: 0.65rem 1.25rem;
+        box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-continuar:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.25);
+    }
+
+    @@keyframes aparecer {
+        from { opacity: 0; transform: translateY(12px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const contenedor = document.getElementById('contenedorLocalidades');
+        const btnContinuar = document.getElementById('btnContinuar');
+        const resumenLocalidad = document.getElementById('resumenLocalidad');
+        const zonaCantidad = document.getElementById('zonaCantidad');
+        const zonaTotal = document.getElementById('zonaTotal');
+        const inputCantidad = document.getElementById('cantidad');
+        const btnMenos = document.getElementById('btnMenos');
+        const btnMas = document.getElementById('btnMas');
+        const totalEl = document.getElementById('total');
+        const maxCantidadEl = document.getElementById('maxCantidad');
+
+        const formato = new Intl.NumberFormat('es-CR', {
+            style: 'currency',
+            currency: 'CRC',
+            minimumFractionDigits: 0
+        });
+
+        let seleccion = null;
+
+        function actualizarResumen() {
+            if (!seleccion) {
+                btnContinuar.disabled = true;
+                zonaCantidad.classList.add('d-none');
+                zonaTotal.classList.add('d-none');
+                resumenLocalidad.textContent = 'No has seleccionado una localidad.';
+                return;
+            }
+
+            btnContinuar.disabled = false;
+            zonaCantidad.classList.remove('d-none');
+            zonaTotal.classList.remove('d-none');
+
+            resumenLocalidad.innerHTML =
+                '<strong>' + seleccion.nombre + '</strong><br />' +
+                'Precio por boleto: ' + formato.format(seleccion.precio);
+
+            maxCantidadEl.textContent = 'Máximo ' + seleccion.capacidad + ' boleto(s).';
+
+            const cantidad = Math.min(Math.max(1, parseInt(inputCantidad.value, 10) || 1), seleccion.capacidad);
+            inputCantidad.value = cantidad;
+            totalEl.textContent = formato.format(seleccion.precio * cantidad);
+        }
+
+        function seleccionarLocalidad(card) {
+            document.querySelectorAll('.localidad-card').forEach(c => c.classList.remove('seleccionada'));
+            card.classList.add('seleccionada');
+
+            seleccion = {
+                id: parseInt(card.dataset.id, 10),
+                precio: parseFloat(card.dataset.precio),
+                capacidad: parseInt(card.dataset.capacidad, 10),
+                nombre: card.dataset.nombre
+            };
+
+            inputCantidad.value = 1;
+            actualizarResumen();
+        }
+
+        contenedor.addEventListener('click', function (e) {
+            const card = e.target.closest('.localidad-card');
+            if (card) {
+                seleccionarLocalidad(card);
+            }
+        });
+
+        btnMenos.addEventListener('click', function () {
+            if (!seleccion) return;
+            inputCantidad.value = Math.max(1, parseInt(inputCantidad.value, 10) - 1);
+            actualizarResumen();
+        });
+
+        btnMas.addEventListener('click', function () {
+            if (!seleccion) return;
+            inputCantidad.value = Math.min(seleccion.capacidad, parseInt(inputCantidad.value, 10) + 1);
+            actualizarResumen();
+        });
+
+        inputCantidad.addEventListener('change', actualizarResumen);
+
+        const modalLogin = document.getElementById('modalLogin');
+
+        btnContinuar.addEventListener('click', function () {
+            if (!seleccion) return;
+
+            const cantidad = parseInt(inputCantidad.value, 10) || 1;
+
+            fetch('/Auth/Estado')
+                .then(res => res.json())
+                .then(estado => {
+                    if (estado.autenticado) {
+                        window.location.href =
+                            '/Compra/Comprar?idEventoLocalidad=' + seleccion.id + '&cantidad=' + cantidad;
+                        return;
+                    }
+
+                    sessionStorage.setItem('compraPendiente', JSON.stringify({
+                        idEventoLocalidad: seleccion.id,
+                        cantidad: cantidad
+                    }));
+
+                    if (modalLogin) {
+                        bootstrap.Modal.getOrCreateInstance(modalLogin).show();
+                    }
+                });
+        });
+
+        document.addEventListener('auth:actualizado', function () {
+            const pendiente = sessionStorage.getItem('compraPendiente');
+            if (pendiente) {
+                sessionStorage.removeItem('compraPendiente');
+                const datos = JSON.parse(pendiente);
+                window.location.href =
+                    '/Compra/Comprar?idEventoLocalidad=' + datos.idEventoLocalidad + '&cantidad=' + datos.cantidad;
+            }
+        });
+    });
+</script>

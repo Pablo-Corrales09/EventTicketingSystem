@@ -100,6 +100,8 @@ FROM usuario u
 INNER JOIN role r ON u.id_role = r.id_role;
 GO
 
+
+
 -- Consulta para obtener los nombres de los medios de pago.
 SELECT nombre_medio_pago AS 'Medio de pago'
 FROM medio_pago;

@@ -15,9 +15,44 @@ namespace API.Services
             _context = context;
         }
 
-        public async Task<List<FacturaResponseDto>> ObtenerTodasAsync()
+        public async Task<List<FacturaResponseDto>> ObtenerTodasAsync(
+            int? usuarioId = null,
+            string? numeroFactura = null,
+            DateTime? fechaDesde = null,
+            DateTime? fechaHasta = null,
+            string? nombreEvento = null)
         {
-            return await ObtenerQueryBase()
+            var query = ObtenerQueryBase();
+
+            if (usuarioId.HasValue)
+            {
+                query = query.Where(f => f.IdUsuario == usuarioId.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(numeroFactura))
+            {
+                query = query.Where(f => f.NumeroFactura.Contains(numeroFactura));
+            }
+
+            if (fechaDesde.HasValue)
+            {
+                query = query.Where(f => f.FechaFactura == null || f.FechaFactura >= fechaDesde.Value);
+            }
+
+            if (fechaHasta.HasValue)
+            {
+                query = query.Where(f => f.FechaFactura == null || f.FechaFactura <= fechaHasta.Value);
+            }
+
+            if (!string.IsNullOrWhiteSpace(nombreEvento))
+            {
+                query = query.Where(f => f.Boletos.Any(b =>
+                    b.IdEventoLocalidadNavigation != null &&
+                    b.IdEventoLocalidadNavigation.IdEventoNavigation != null &&
+                    b.IdEventoLocalidadNavigation.IdEventoNavigation.NombreEvento.Contains(nombreEvento)));
+            }
+
+            return await query
                 .Select(f => MapearFacturaDto(f))
                 .ToListAsync();
         }
@@ -49,17 +84,17 @@ namespace API.Services
                 .FirstOrDefaultAsync();
         }
 
-        // Función auxiliar para calcular el total sumando el precio de las localidades
+        // Función auxiliar para calcular el total sumando el precio de las localidades, respetando la cantidad de boletos repetidos.
         private async Task<decimal> CalcularTotalFactura(List<int> idsEventoLocalidad)
         {
             if (idsEventoLocalidad == null || !idsEventoLocalidad.Any())
                 return 0;
 
-            decimal total = await _context.EventoLocalidads
+            var precios = await _context.EventoLocalidads
                 .Where(el => idsEventoLocalidad.Contains(el.IdEventoLocalidad))
-                .SumAsync(el => el.Precio);
+                .ToDictionaryAsync(el => el.IdEventoLocalidad, el => el.Precio);
 
-            return total;
+            return idsEventoLocalidad.Sum(id => precios.TryGetValue(id, out var precio) ? precio : 0);
         }
 
         // Función auxiliar para crear el número de factura de manera consecutiva
