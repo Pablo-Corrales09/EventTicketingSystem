@@ -9,7 +9,7 @@
 
     <div class="hero-section rounded-4 p-5 mb-5 shadow-sm text-center">
         <span class="badge rounded-pill px-3 py-2 fw-semibold mb-3 hero-badge">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-ticket-perforated me-1" viewBox="0 0 16 16">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="me-1" viewBox="0 0 16 16">
                 <path d="M4 4.85v.9h1v-.9H4zm7 0v.9h1v-.9h-1zM4 8.3v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 3.45v.9h1v-.9H4zm7 0v.9h1v-.9h-1z"/>
                 <path d="M0 4.5A1.5 1.5 0 0 1 1.5 3h13A1.5 1.5 0 0 1 16 4.5V6a.5.5 0 0 1-.5.5 1.5 1.5 0 0 0 0 3 .5.5 0 0 1 .5.5v1.5A1.5 1.5 0 0 1 14.5 13h-13A1.5 1.5 0 0 1 0 11.5V10a.5.5 0 0 1 .5-.5 1.5 1.5 0 0 0 0-3A.5.5 0 0 1 0 6V4.5zM1.5 4a.5.5 0 0 0-.5.5v1.05a2.5 2.5 0 0 1 0 4.9v1.05a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-1.05a2.5 2.5 0 0 1 0-4.9V4.5a.5.5 0 0 0-.5-.5h-13z"/>
             </svg>
@@ -20,6 +20,61 @@
             Encuentra los mejores conciertos, partidos y espectaculos, y asegura tus entradas en segundos.
         </p>
     </div>
+
+    <div class="admin-navbar bg-white rounded-3 shadow-sm p-2 mb-4 border d-flex flex-wrap align-items-center justify-content-between">
+        <div class="d-flex align-items-center">
+            <!-- Título o ícono del panel -->
+            <span class="text-muted fw-bold ms-2 me-4 d-none d-md-block">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="currentColor" class="bi bi-gear-fill me-1 mb-1" viewBox="0 0 16 16">
+                    <path d="M9.405 1.05c-.413-1.4-2.397-1.4-2.81 0l-.1.34a1.464 1.464 0 0 1-2.105.872l-.31-.17c-1.283-.698-2.686.705-1.987 1.987l.169.311c.446.82.023 1.841-.872 2.105l-.34.1c-1.4.413-1.4 2.397 0 2.81l.34.1a1.464 1.464 0 0 1 .872 2.105l-.17.31c-.698 1.283.705 2.686 1.987 1.987l.311-.169a1.464 1.464 0 0 1 2.105.872l.1.34c.413 1.4 2.397 1.4 2.81 0l.1-.34a1.464 1.464 0 0 1 2.105-.872l.31.17c1.283.698 2.686-.705 1.987-1.987l-.169-.311a1.464 1.464 0 0 1 .872-2.105l.34-.1c1.4-.413 1.4-2.397 0-2.81l-.34-.1a1.464 1.464 0 0 1-.872-2.105l.17-.31c.698-1.283-.705-2.686-1.987-1.987l-.311.169a1.464 1.464 0 0 1-2.105-.872l-.1-.34zM8 10.93a2.929 2.929 0 1 1 0-5.86 2.929 2.929 0 0 1 0 5.858z"/>
+                </svg>
+                Gestión administrativa.
+            </span>
+            
+            <ul class="nav gap-3">
+                <li class="nav-item ">
+                    <a class="nav-link active" asp-area="" asp-controller="Eventos" asp-action="Index">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event me-1 mb-1" viewBox="0 0 16 16">
+                            <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                        Eventos
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active" asp-area="" asp-controller="Facturas" asp-action="Index">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event me-1 mb-1" viewBox="0 0 16 16">
+                            <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                        Facturas
+                    </a>
+                </li>
+
+                <li class="nav-item">
+                    <a class="nav-link active" asp-area="" asp-controller="Boletos" asp-action="Index">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-calendar-event me-1 mb-1" viewBox="0 0 16 16">
+                            <path d="M11 6.5a.5.5 0 0 1 .5-.5h1a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5h-1a.5.5 0 0 1-.5-.5v-1z"/>
+                            <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                        </svg>
+                        Boletos
+                    </a>
+                </li>
+
+                <li class="nav-item ms-2">
+                    <a class="nav-link text-dark" href="#">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-people me-1 mb-1" viewBox="0 0 16 16">
+                            <path d="M15 14s1 0 1-1-1-4-5-4-5 3-5 4 1 1 1 1h8Zm-7.978-1A.261.261 0 0 1 7 12.996c.001-.264.167-1.03.76-1.72C8.312 10.629 9.282 10 11 10c1.717 0 2.687.63 3.24 1.276.593.69.758 1.457.76 1.72l-.008.002a.274.274 0 0 1-.014.002H7.022ZM11 7a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm3-2a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM6.936 9.28a5.88 5.88 0 0 0-1.23-.247A7.35 7.35 0 0 0 5 9c-4 0-5 3-5 4 0 .667.333 1 1 1h4.216A2.238 2.238 0 0 1 5 13c0-1.01.377-2.042 1.09-2.904.243-.294.526-.569.846-.816ZM4.92 10A5.493 5.493 0 0 0 4 13H1c0-.26.164-1.03.76-1.724.545-.636 1.492-1.256 3.16-1.275ZM1.5 5.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0Zm3-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
+                        </svg>
+                        Usuarios
+                    </a>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+   
 
     @if (ViewBag.Error != null)
     {
@@ -35,7 +90,7 @@
     }
     else
     {
-        <div class="row g-4">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             @{
                 var indice = 0;
             }
@@ -44,7 +99,7 @@
                 indice++;
                 var retraso = ((indice % 6) * 0.08).ToString(System.Globalization.CultureInfo.InvariantCulture) + "s";
 
-                <div class="col-md-6 col-lg-4" style="animation-delay: @retraso;">
+                <div class="col" style="animation-delay: @retraso;">
                     <article class="card evento-card h-100 border-0 shadow-sm">
                         <div class="evento-imagen">
                             <svg class="evento-icono" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
@@ -65,7 +120,7 @@
                                     <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
                                     <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
                                 </svg>
-                                <span>@evento.FechaEvento.ToString("dd 'de' MMMM 'de' yyyy", esCR)</span>
+                                <time datetime="@evento.FechaEvento.ToString("yyyy-MM-dd")">@evento.FechaEvento.ToString("dd 'de' MMMM 'de' yyyy", esCR)</time>
                             </div>
 
                             <div class="d-flex align-items-center text-secondary mb-4">
@@ -89,71 +144,51 @@
 
 <style>
     .hero-section {
-        background: linear-gradient(135deg, #eef2ff 0%, #fae8ff 100%);
+        background: var(--gradient-hero);
         border: 1px solid rgba(13, 110, 253, 0.08);
         animation: aparecer 0.6s ease both;
     }
 
     .hero-badge {
-        background: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
+        background: var(--accent-soft-10);
+        color: var(--accent);
     }
 
-    .evento-imagen {
-        position: relative;
-        height: 200px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        overflow: hidden;
-        background: linear-gradient(135deg, #a8ede0 0%, #fed6e3 100%);
-    }
-
-    .evento-imagen .evento-icono {
-        position: absolute;
-        color: rgba(255, 255, 255, 0.9);
-    }
-
-    .evento-imagen img {
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        transition: transform 0.5s ease;
-    }
-
+    /* .evento-imagen / .evento-card base styles live in site.css (shared with Eventos/Index.cshtml) */
     .evento-card {
-        border-radius: 1rem;
-        overflow: hidden;
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
         animation: aparecer 0.6s ease both;
     }
 
-    .evento-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 1rem 2rem rgba(13, 110, 253, 0.12) !important;
-    }
-
-    .evento-card:hover .evento-imagen img {
-        transform: scale(1.06);
-    }
-
     .evento-btn {
-        border-radius: 50rem;
+        border-radius: var(--radius-pill);
         padding: 0.6rem 1.25rem;
         font-weight: 600;
         transition: transform 0.2s ease, box-shadow 0.2s ease;
-        box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.15);
+        box-shadow: 0 0.25rem 0.5rem var(--accent-soft-15);
     }
 
     .evento-btn:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.25);
+        transform: translateY(var(--lift-btn));
+        box-shadow: 0 0.5rem 1rem var(--accent-soft-25);
     }
 
     @@keyframes aparecer {
         from { opacity: 0; transform: translateY(16px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .hero-section,
+        .evento-card {
+            animation: none;
+        }
+
+        .evento-btn:hover {
+            transform: none;
+        }
+
+        .evento-btn {
+            transition: none;
+        }
     }
 </style>

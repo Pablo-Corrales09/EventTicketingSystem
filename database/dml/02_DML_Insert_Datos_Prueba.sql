@@ -86,6 +86,29 @@ VALUES
 GO
 
 
+INSERT INTO asiento (id_localidad, fila, numero)
+VALUES
+-- Gradería Norte (Localidad 1)
+(1, 'A', '1'), (1, 'A', '2'), (1, 'A', '3'), (1, 'A', '4'), (1, 'A', '5'),
+(1, 'B', '1'), (1, 'B', '2'), (1, 'B', '3'), (1, 'B', '4'), (1, 'B', '5'),
+-- Gradería Sur (Localidad 2)
+(2, 'A', '1'), (2, 'A', '2'), (2, 'A', '3'), (2, 'A', '4'), (2, 'A', '5'),
+(2, 'B', '1'), (2, 'B', '2'), (2, 'B', '3'), (2, 'B', '4'), (2, 'B', '5'),
+-- Palco VIP (Localidad 3)
+(3, 'VIP-A', '1'), (3, 'VIP-A', '2'), (3, 'VIP-A', '3'),
+(3, 'VIP-B', '1'), (3, 'VIP-B', '2'), (3, 'VIP-B', '3');
+GO
+
+
+INSERT INTO boleto (id_evento_localidad, id_factura, id_usuario, num_boleto, id_asiento)
+VALUES
+(1, 1, 1, 'BOL-001', 1),
+(2, 2, 2, 'BOL-002', 11),
+(3, 3, 3, 'BOL-003', 21),
+(4, 4, 4, 'BOL-004', NULL);
+GO
+
+
 -----------------------------CONSULTA DE LAS TABLAS--------------------------------------
 
 --Consulta para obtener los nombre de los roles.

@@ -7,7 +7,7 @@
 
 <div class="container py-5">
     <div class="row justify-content-center">
-        <div class="col-md-8 col-lg-6">
+        <div class="col-12 col-md-8 col-lg-6">
             <div class="card resumen-pago border-0 shadow-sm mb-4">
                 <div class="card-header resumen-pago-header text-center py-4">
                     <h3 class="mb-1 fw-bold">Resumen de tu compra</h3>
@@ -121,22 +121,22 @@
 
 <style>
     .resumen-pago {
-        border-radius: 1.25rem;
+        border-radius: var(--radius-lg);
         overflow: hidden;
     }
 
     .resumen-pago-header {
-        background: linear-gradient(135deg, #eef2ff 0%, #fae8ff 100%);
+        background: var(--gradient-hero);
         border-bottom: none;
     }
 
     .resumen-pago .form-select {
-        border-radius: 0.75rem;
+        border-radius: var(--radius-sm);
         padding: 0.6rem 0.9rem;
     }
 
     .tarjeta-demo {
-        border-radius: 1rem;
+        border-radius: var(--radius-md);
         border: 1px dashed #c7d2fe;
         background: #f8faff;
     }
@@ -146,15 +146,25 @@
     }
 
     .btn-pagar {
-        border-radius: 50rem;
+        border-radius: var(--radius-pill);
         font-weight: 600;
         box-shadow: 0 0.25rem 0.5rem rgba(25, 135, 84, 0.2);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .btn-pagar:hover {
-        transform: translateY(-2px);
+        transform: translateY(var(--lift-btn));
         box-shadow: 0 0.5rem 1rem rgba(25, 135, 84, 0.3);
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .btn-pagar:hover {
+            transform: none;
+        }
+
+        .btn-pagar {
+            transition: none;
+        }
     }
 </style>
 

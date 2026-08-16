@@ -36,17 +36,26 @@
     }
     else
     {
-        <div class="row">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-4">
             @foreach (var evento in Model)
             {
-                <div class="col-md-4 mb-4">
-                    <!-- Clases de transición y hover añadidas para interactividad visual -->
-                    <div class="card h-100 shadow-sm border-0 event-card transition-hover">
+                <div class="col">
+                    <div class="card h-100 shadow-sm border-0 evento-card">
+                        <div class="evento-imagen">
+                            <svg class="evento-icono" xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M4 4.85v.9h1v-.9H4zm7 0v.9h1v-.9h-1zM4 8.3v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 3.45v.9h1v-.9H4zm7 0v.9h1v-.9h-1z"/>
+                                <path d="M0 4.5A1.5 1.5 0 0 1 1.5 3h13A1.5 1.5 0 0 1 16 4.5V6a.5.5 0 0 1-.5.5 1.5 1.5 0 0 0 0 3 .5.5 0 0 1 .5.5v1.5A1.5 1.5 0 0 1 14.5 13h-13A1.5 1.5 0 0 1 0 11.5V10a.5.5 0 0 1 .5-.5 1.5 1.5 0 0 0 0-3A.5.5 0 0 1 0 6V4.5zM1.5 4a.5.5 0 0 0-.5.5v1.05a2.5 2.5 0 0 1 0 4.9v1.05a.5.5 0 0 0 .5.5h13a.5.5 0 0 0 .5-.5v-1.05a2.5 2.5 0 0 1 0-4.9V4.5a.5.5 0 0 0-.5-.5h-13z"/>
+                            </svg>
+                            <img src="@(string.IsNullOrWhiteSpace(evento.ImagenUrl) ? "https://picsum.photos/seed/evento-" + evento.IdEvento + "/600/340" : evento.ImagenUrl)"
+                                 alt="Imagen del evento @evento.NombreEvento"
+                                 loading="lazy"
+                                 onerror="this.classList.add('d-none');" />
+                        </div>
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title fw-bold text-dark">@evento.NombreEvento</h5>
 
                             <p class="card-text mb-1 text-secondary">
-                                <i class="bi bi-calendar3 me-1"></i><strong>Fecha:</strong> @evento.FechaEvento.ToString("dd/MM/yyyy")
+                                <i class="bi bi-calendar3 me-1"></i><strong>Fecha:</strong> <time datetime="@evento.FechaEvento.ToString("yyyy-MM-dd")">@evento.FechaEvento.ToString("dd/MM/yyyy")</time>
                             </p>
 
                             <p class="card-text mb-1 text-secondary">
@@ -69,7 +78,8 @@
                                 {
                                     <a asp-action="Editar" asp-route-id="@evento.IdEvento"
                                        class="btn btn-outline-secondary shadow-sm"
-                                       title="Editar evento">
+                                       title="Editar evento"
+                                       aria-label="Editar evento">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                 }
@@ -101,7 +111,7 @@
 
                     <div id="modalContenido" class="d-none">
                         <div class="row">
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <h6 class="fw-bold text-secondary border-bottom pb-2">
                                     <i class="bi bi-info-circle me-1"></i> Información de la Sede
                                 </h6>
@@ -112,13 +122,13 @@
                                         <span id="lblUbicacion" class="text-muted"></span>
                                     </li>
                                     <li>
-                                        <strong>Capacidad Máxima:</strong>
-                                        <span id="lblCapacidad" class="text-muted"></span> personas
+                                        <strong>Boletos disponibles:</strong>
+                                        <span id="lblCapacidad" class="text-muted"></span>
                                     </li>
                                 </ul>
                             </div>
 
-                            <div class="col-md-6 mb-3">
+                            <div class="col-12 col-md-6 mb-3">
                                 <h6 class="fw-bold text-secondary border-bottom pb-2">
                                     <i class="bi bi-tags me-1"></i> Selecciona tu Localidad
                                 </h6>
@@ -143,15 +153,7 @@
     </div>
 </div>
 
-<!-- Estilos CSS para animaciones e interactividad visual -->
 <style>
-    .transition-hover {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .transition-hover:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 .5rem 1rem rgba(0,0,0,.15)!important;
-    }
     .cursor-pointer {
         cursor: pointer;
     }
@@ -193,15 +195,15 @@
                         lblUbicacion.innerText =
                             data.sede?.ubicacion ?? 'Sin ubicación';
 
-                        const capacidadTotal = (data.localidades ?? [])
+                        const boletosDisponibles = (data.localidades ?? [])
                             .reduce(
-                                (suma, loc) => suma + (loc.capacidadMaxima ?? 0),
+                                (suma, loc) => suma + (loc.capacidadDisponible ?? 0),
                                 0
                             );
 
                         lblCapacidad.innerText =
-                            capacidadTotal > 0
-                                ? capacidadTotal
+                            boletosDisponibles > 0
+                                ? boletosDisponibles
                                 : 'No definida';
 
                         contenedorLocalidades.innerHTML = '';

@@ -30,13 +30,13 @@
     {
         <div class="card detalle-hero border-0 shadow-sm overflow-hidden mb-5">
             <div class="row g-0">
-                <div class="col-md-6 detalle-hero-imagen">
+                <div class="col-12 col-md-6 detalle-hero-imagen">
                     <img src="@imagenEvento"
                          alt="Imagen del evento @Model.NombreEvento"
                          loading="lazy"
                          onerror="this.classList.add('d-none');" />
                 </div>
-                <div class="col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center">
+                <div class="col-12 col-md-6 p-4 p-lg-5 d-flex flex-column justify-content-center">
                     <span class="badge detalle-badge align-self-start mb-3 fw-semibold">
                         <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="currentColor" class="me-1" viewBox="0 0 16 16">
                             <path d="M4 4.85v.9h1v-.9H4zm7 0v.9h1v-.9h-1zM4 8.3v.9h1v-.9H4zm7 0v.9h1v-.9h-1zm-7 3.45v.9h1v-.9H4zm7 0v.9h1v-.9h-1z"/>
@@ -51,7 +51,7 @@
                             <path d="M14 0H2a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zM1 3.857C1 3.384 1.448 3 2 3h12c.552 0 1 .384 1 .857v10.286c0 .473-.448.857-1 .857H2c-.552 0-1-.384-1-.857V3.857z"/>
                             <path d="M6.5 7a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-9 3a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm3 0a1 1 0 1 0 0-2 1 1 0 0 0 0 2z"/>
                         </svg>
-                        <span>@Model.FechaEvento.ToString("dd 'de' MMMM 'de' yyyy", esCR)</span>
+                        <time datetime="@Model.FechaEvento.ToString("yyyy-MM-dd")">@Model.FechaEvento.ToString("dd 'de' MMMM 'de' yyyy", esCR)</time>
                     </div>
 
                     <div class="d-flex align-items-center text-secondary mb-2">
@@ -84,10 +84,10 @@
                 }
                 else
                 {
-                    <div class="row g-3" id="contenedorLocalidades">
+                    <div class="row row-cols-1 row-cols-md-2 g-3" id="contenedorLocalidades">
                         @foreach (var localidad in Model.Localidades)
                         {
-                            <div class="col-md-6">
+                            <div class="col">
                                 <div class="card localidad-card border-0 shadow-sm h-100"
                                      data-id="@localidad.IdEventoLocalidad"
                                      data-precio="@localidad.Precio.ToString(inv)"
@@ -111,7 +111,7 @@
             </div>
 
             <div class="col-lg-4">
-                <div class="card resumen-compra border-0 shadow-sm sticky-top" style="top: 1rem;">
+                <div class="card resumen-compra border-0 shadow-sm sticky-lg-top" style="top: 1rem;">
                     <div class="card-body p-4">
                         <h5 class="fw-bold text-dark mb-3">Tu selección</h5>
 
@@ -156,8 +156,8 @@
 
 <style>
     .detalle-hero {
-        border-radius: 1.25rem;
-        background: linear-gradient(135deg, #eef2ff 0%, #fae8ff 100%);
+        border-radius: var(--radius-lg);
+        background: var(--gradient-hero);
     }
 
     .detalle-hero-imagen {
@@ -174,11 +174,11 @@
 
     .detalle-badge {
         background: rgba(13, 110, 253, 0.12);
-        color: #0d6efd;
+        color: var(--accent);
     }
 
     .localidad-card {
-        border-radius: 1rem;
+        border-radius: var(--radius-md);
         cursor: pointer;
         transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
         animation: aparecer 0.5s ease both;
@@ -190,23 +190,23 @@
     }
 
     .localidad-card.seleccionada {
-        border: 2px solid #0d6efd !important;
+        border: 2px solid var(--accent) !important;
         box-shadow: 0 0.75rem 1.5rem rgba(13, 110, 253, 0.18) !important;
     }
 
     .localidad-precio {
-        background: rgba(13, 110, 253, 0.1);
-        color: #0d6efd;
+        background: var(--accent-soft-10);
+        color: var(--accent);
         font-weight: 600;
     }
 
     .localidad-card.seleccionada .localidad-precio {
-        background: #0d6efd;
+        background: var(--accent);
         color: #fff;
     }
 
     .resumen-compra {
-        border-radius: 1.25rem;
+        border-radius: var(--radius-lg);
     }
 
     .stepper .btn {
@@ -214,11 +214,11 @@
     }
 
     .stepper .btn:first-child {
-        border-radius: 0.75rem 0 0 0.75rem;
+        border-radius: var(--radius-sm) 0 0 var(--radius-sm);
     }
 
     .stepper .btn:last-child {
-        border-radius: 0 0.75rem 0.75rem 0;
+        border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
     }
 
     .stepper .form-control {
@@ -227,21 +227,37 @@
     }
 
     .btn-continuar {
-        border-radius: 50rem;
+        border-radius: var(--radius-pill);
         font-weight: 600;
         padding: 0.65rem 1.25rem;
-        box-shadow: 0 0.25rem 0.5rem rgba(13, 110, 253, 0.15);
+        box-shadow: 0 0.25rem 0.5rem var(--accent-soft-15);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
 
     .btn-continuar:hover:not(:disabled) {
-        transform: translateY(-2px);
-        box-shadow: 0 0.5rem 1rem rgba(13, 110, 253, 0.25);
+        transform: translateY(var(--lift-btn));
+        box-shadow: 0 0.5rem 1rem var(--accent-soft-25);
     }
 
     @@keyframes aparecer {
         from { opacity: 0; transform: translateY(12px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .localidad-card {
+            animation: none;
+        }
+
+        .localidad-card:hover,
+        .btn-continuar:hover:not(:disabled) {
+            transform: none;
+        }
+
+        .localidad-card,
+        .btn-continuar {
+            transition: none;
+        }
     }
 </style>
 

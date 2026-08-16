@@ -55,16 +55,33 @@ ALTER TABLE evento
 ADD image_evento VARCHAR(255) NULL;
 GO
 
-SELECT * FROM evento;
-
-ALTER TABLE evento
-ADD IdSede INT NULL;
-
 
 ALTER TABLE evento
 ADD CONSTRAINT FK_evento_sede_evento 
 FOREIGN KEY (IdSede) 
 REFERENCES sede_evento(id_sede_evento);
+GO
+
+
+CREATE TABLE asiento(
+    id_asiento INT IDENTITY(1,1),
+    id_localidad INT NOT NULL,
+    fila NVARCHAR(10) NOT NULL,
+    numero NVARCHAR(10) NOT NULL,
+    CONSTRAINT PK_asiento PRIMARY KEY (id_asiento),
+    CONSTRAINT FK_asiento_localidad FOREIGN KEY (id_localidad) REFERENCES localidad(id_localidad)
+);
+GO
+
+ALTER TABLE boleto
+ADD id_asiento INT NULL;
+GO
+
+
+ALTER TABLE boleto
+ADD CONSTRAINT FK_boleto_asiento 
+FOREIGN KEY (id_asiento) 
+REFERENCES asiento(id_asiento);
 GO
 
 CREATE TABLE localidad(

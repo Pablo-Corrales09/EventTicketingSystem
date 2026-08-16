@@ -51,7 +51,14 @@
                 <div class="col-6 mb-3">
                     <small class="text-muted d-block">Fecha del Evento</small>
                     <strong class="text-dark">
-                        @(Model.FechaEvento?.ToString("dd/MM/yyyy") ?? "No disponible")
+                        @if (Model.FechaEvento.HasValue)
+                        {
+                            <time datetime="@Model.FechaEvento.Value.ToString("yyyy-MM-dd")">@Model.FechaEvento.Value.ToString("dd/MM/yyyy")</time>
+                        }
+                        else
+                        {
+                            <text>No disponible</text>
+                        }
                     </strong>
                 </div>
 
@@ -78,7 +85,14 @@
                 <div class="col-6 mb-3">
                     <small class="text-muted d-block">Fecha de Compra</small>
                     <strong class="text-dark">
-                        @(Model.FechaCompra?.ToString("dd/MM/yyyy") ?? "No disponible")
+                        @if (Model.FechaCompra.HasValue)
+                        {
+                            <time datetime="@Model.FechaCompra.Value.ToString("yyyy-MM-dd")">@Model.FechaCompra.Value.ToString("dd/MM/yyyy")</time>
+                        }
+                        else
+                        {
+                            <text>No disponible</text>
+                        }
                     </strong>
                 </div>
             </div>
@@ -97,7 +111,7 @@
 
 <style>
     .ticket {
-        border-radius: 16px;
+        border-radius: var(--radius-md);
         overflow: hidden;
     }
     .ticket .card-body {

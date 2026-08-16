@@ -79,46 +79,4 @@ public class BoletosController : Controller
         }
     }
 
-    // GET: /Boletos/Comprar
-    // Muestra el formulario vacío para realizar la compra
-    public IActionResult Comprar()
-    {
-        return View();
-    }
-
-    // POST: /Boletos/Comprar
-    // Consume: api/Boletos/comprar
-    [HttpPost]
-    [ValidateAntiForgeryToken]
-    public async Task<IActionResult> Comprar(BoletoCreacionViewModel modelo)
-    {
-        if (!ModelState.IsValid)
-        {
-            return View(modelo);
-        }
-
-        var client = _httpClientFactory.CreateClient("API");
-
-        try
-        {
-            var response = await client.PostAsJsonAsync("api/Boletos/comprar", modelo);
-
-            if (response.IsSuccessStatusCode)
-            {
-                // Si la compra fue exitosa, redirige a los detalles del boleto
-                var boletoCreado = await response.Content.ReadFromJsonAsync<BoletoViewModel>();
-                return RedirectToAction(nameof(Details), new { id = boletoCreado?.IdBoleto });
-            }
-            else
-            {
-                ModelState.AddModelError(string.Empty, "Error al procesar la compra. Verifica los datos enviados.");
-                return View(modelo);
-            }
-        }
-        catch (HttpRequestException)
-        {
-            ModelState.AddModelError(string.Empty, "No fue posible conectarse con la API en este momento.");
-            return View(modelo);
-        }
-    }
 }

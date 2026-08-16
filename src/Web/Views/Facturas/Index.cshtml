@@ -27,29 +27,29 @@
     {
         <form method="get" class="card card-body shadow-sm mb-4">
             <div class="row g-2 align-items-end">
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold small mb-1">Número de factura</label>
                     <input type="text" name="numeroFactura" value="@Context.Request.Query["numeroFactura"]"
                            class="form-control" placeholder="FAC-..." />
                 </div>
-                <div class="col-md-2">
+                <div class="col-12 col-md-2">
                     <label class="form-label fw-semibold small mb-1">Desde</label>
                     <input type="date" name="fechaDesde" value="@Context.Request.Query["fechaDesde"]"
                            class="form-control" />
                 </div>
-                <div class="col-md-2">
+                <div class="col-12 col-md-2">
                     <label class="form-label fw-semibold small mb-1">Hasta</label>
                     <input type="date" name="fechaHasta" value="@Context.Request.Query["fechaHasta"]"
                            class="form-control" />
                 </div>
-                <div class="col-md-3">
+                <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold small mb-1">Evento</label>
                     <input type="text" name="nombreEvento" value="@Context.Request.Query["nombreEvento"]"
                            class="form-control" placeholder="Nombre del evento" />
                 </div>
-                <div class="col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-fill">Buscar</button>
-                    <a asp-action="Index" class="btn btn-outline-secondary">Limpiar</a>
+                <div class="col-12 col-md-2 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill py-2">Buscar</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary py-2">Limpiar</a>
                 </div>
             </div>
         </form>
@@ -65,16 +65,16 @@
     {
         @foreach (var factura in Model)
         {
-            <div class="card shadow-sm mb-4 border-0">
+            <div class="card factura-card shadow-sm mb-4 border-0">
                 <div class="card-header bg-dark text-white">
                     <div class="row">
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-4">
                             <strong>Factura:</strong> @factura.NumeroFactura
                         </div>
-                        <div class="col-md-4">
-                            <strong>Fecha:</strong> @factura.FechaFactura.ToString("dd/MM/yyyy")
+                        <div class="col-12 col-sm-4">
+                            <strong>Fecha:</strong> <time datetime="@factura.FechaFactura.ToString("yyyy-MM-dd")">@factura.FechaFactura.ToString("dd/MM/yyyy")</time>
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-12 col-sm-4">
                             <strong>Total:</strong> ₡@factura.Total.ToString("N2")
                         </div>
                     </div>
@@ -105,40 +105,64 @@
                     }
                     else
                     {
-                        <div class="table-responsive">
-                            <table class="table table-striped table-bordered align-middle mb-0">
-                                <thead class="table-light">
-                                    <tr>
-                                        <th>Boleto</th>
-                                        <th>Evento</th>
-                                        <th>Localidad</th>
-                                        <th>Fecha</th>
-                                        <th>Hora</th>
-                                        <th class="text-end">Precio</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach (var boleto in factura.Boletos)
-                                    {
-                                        <tr>
-                                            <td>
-                                                <a asp-controller="Boletos" asp-action="Details" asp-route-id="@boleto.IdBoleto">
-                                                    @boleto.NumBoleto
-                                                </a>
-                                            </td>
-                                            <td>@boleto.NombreEvento</td>
-                                            <td>@boleto.NombreLocalidad</td>
-                                            <td>@(boleto.FechaEvento?.ToString("dd/MM/yyyy") ?? "No disponible")</td>
-                                            <td>@(boleto.HoraEvento?.ToString("HH:mm") ?? "No disponible")</td>
-                                            <td class="text-end">₡@boleto.Precio.ToString("N2")</td>
-                                        </tr>
-                                    }
-                                </tbody>
-                            </table>
-                        </div>
+                        <ul class="list-group list-group-flush">
+                            @foreach (var boleto in factura.Boletos)
+                            {
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+                                        <div>
+                                            <a asp-controller="Boletos" asp-action="Details" asp-route-id="@boleto.IdBoleto" class="fw-semibold link-enlace">
+                                                @boleto.NumBoleto
+                                            </a>
+                                            <div class="text-muted small">
+                                                @boleto.NombreEvento · @boleto.NombreLocalidad
+                                            </div>
+                                            <div class="text-muted small">
+                                                @if (boleto.FechaEvento.HasValue)
+                                                {
+                                                    <time datetime="@boleto.FechaEvento.Value.ToString("yyyy-MM-dd")">@boleto.FechaEvento.Value.ToString("dd/MM/yyyy")</time>
+                                                }
+                                                else
+                                                {
+                                                    <text>Fecha no disponible</text>
+                                                }
+                                                @if (boleto.HoraEvento.HasValue)
+                                                {
+                                                    <text> · @boleto.HoraEvento.Value.ToString("HH:mm")</text>
+                                                }
+                                            </div>
+                                        </div>
+                                        <span class="fw-bold text-success">₡@boleto.Precio.ToString("N2")</span>
+                                    </div>
+                                </li>
+                            }
+                        </ul>
                     }
                 </div>
             </div>
         }
     }
 </div>
+
+<style>
+    .factura-card {
+        border-radius: var(--radius-md);
+        overflow: hidden;
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .factura-card:hover {
+        transform: translateY(var(--lift-card));
+        box-shadow: 0 1rem 2rem rgba(13, 110, 253, 0.12) !important;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .factura-card:hover {
+            transform: none;
+        }
+
+        .factura-card {
+            transition: none;
+        }
+    }
+</style>

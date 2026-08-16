@@ -65,7 +65,7 @@ public class EventosController : Controller
         }
     }
 
-    // 2. GET: /Eventos/ObtenerDetalles/5
+    // 2. GET: /Eventos/ObtenerDetalles/5   
     [HttpGet]
     public async Task<IActionResult> ObtenerDetalles(int id)
     {
