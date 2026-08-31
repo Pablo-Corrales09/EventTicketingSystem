@@ -1,0 +1,276 @@
+@model Web.Models.FacturaViewModel
+
+@{
+    ViewData["Title"] = $"Imprimir {Model.NumeroFactura}";
+    var primerBoleto = Model.Boletos.FirstOrDefault();
+    var cliente = primerBoleto != null
+        ? $"{primerBoleto.NombreUsuario} {primerBoleto.ApellidoUsuario}".Trim()
+        : string.Empty;
+    var correoCliente = primerBoleto?.CorreoUsuario ?? string.Empty;
+    var telefonoCliente = primerBoleto?.TelefonoUsuario ?? string.Empty;
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4 no-imprimir">
+        <h1 class="fw-bold text-dark mb-0">
+            <i class="bi bi-receipt me-2 text-factura"></i>Imprimir factura
+        </h1>
+        <div class="d-flex gap-2">
+            <a asp-action="Index" class="btn btn-outline-secondary btn-volver">
+                <i class="bi bi-arrow-left me-1"></i> Volver
+            </a>
+            <button type="button" class="btn btn-factura" onclick="window.print()">
+                <i class="bi bi-printer me-1"></i> Imprimir
+            </button>
+        </div>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger shadow-sm no-imprimir">@ViewBag.Error</div>
+    }
+
+    <div class="card factura-documento shadow-sm border-0 mb-5">
+        <div class="factura-documento-header">
+            <div class="row align-items-center g-3">
+                <div class="col-12 col-sm-7 d-flex align-items-center gap-3">
+                    <img src="https://ticketingmediastorage.blob.core.windows.net/eventos-img/TicoTicket_Logo.webp"
+                         alt="Logo de TicoTicket" height="48" class="d-inline-block" />
+                    <div>
+                        <div class="fw-bold factura-empresa text-dark">TicoTicket</div>
+                        <div class="small text-muted">Boletería y eventos en línea</div>
+                    </div>
+                </div>
+                <div class="col-12 col-sm-5 text-sm-end">
+                    <div class="fw-bold factura-titulo">FACTURA</div>
+                    <div class="small text-muted">N° @Model.NumeroFactura</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body p-4 p-sm-5">
+            <div class="row g-3 mb-4">
+                <div class="col-12 col-sm-6">
+                    <h2 class="h6 fw-bold text-uppercase factura-seccion mb-2">Cliente</h2>
+                    <div class="factura-dato"><strong>Nombre:</strong> @(string.IsNullOrWhiteSpace(cliente) ? "—" : cliente)</div>
+                    <div class="factura-dato"><strong>Correo:</strong> @(string.IsNullOrWhiteSpace(correoCliente) ? "—" : correoCliente)</div>
+                    <div class="factura-dato"><strong>Teléfono:</strong> @(string.IsNullOrWhiteSpace(telefonoCliente) ? "—" : telefonoCliente)</div>
+                </div>
+                <div class="col-12 col-sm-6 text-sm-end">
+                    <h2 class="h6 fw-bold text-uppercase factura-seccion mb-2">Detalles</h2>
+                    <div class="factura-dato"><strong>Fecha de emisión:</strong> <time datetime="@Model.FechaFactura.ToString("yyyy-MM-dd")">@Model.FechaFactura.ToString("dd/MM/yyyy")</time></div>
+                    <div class="factura-dato"><strong>Cantidad de boletos:</strong> @Model.Boletos.Count</div>
+                </div>
+            </div>
+
+            @if (Model.Boletos.Count == 0)
+            {
+                <div class="alert alert-warning mb-0">
+                    Esta factura no tiene boletos relacionados.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table factura-tabla align-middle mb-4">
+                        <thead>
+                            <tr>
+                                <th scope="col">N° Boleto</th>
+                                <th scope="col">Evento</th>
+                                <th scope="col">Localidad</th>
+                                <th scope="col">Fecha del evento</th>
+                                <th scope="col">Hora</th>
+                                <th scope="col" class="text-end">Precio</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var boleto in Model.Boletos)
+                            {
+                                <tr>
+                                    <td class="fw-semibold">@boleto.NumBoleto</td>
+                                    <td>@boleto.NombreEvento</td>
+                                    <td>@boleto.NombreLocalidad</td>
+                                    <td>
+                                        @if (boleto.FechaEvento.HasValue)
+                                        {
+                                            <time datetime="@boleto.FechaEvento.Value.ToString("yyyy-MM-dd")">@boleto.FechaEvento.Value.ToString("dd/MM/yyyy")</time>
+                                        }
+                                        else
+                                        {
+                                            <text>No disponible</text>
+                                        }
+                                    </td>
+                                    <td>@(boleto.HoraEvento?.ToString("HH:mm") ?? "—")</td>
+                                    <td class="text-end">₡@boleto.Precio.ToString("N2")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="d-flex justify-content-end">
+                    <div class="factura-resumen">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Subtotal</span>
+                            <span class="fw-semibold">₡@Model.Total.ToString("N2")</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span class="text-muted">Impuestos</span>
+                            <span class="fw-semibold">₡0.00</span>
+                        </div>
+                        <div class="d-flex justify-content-between factura-total-linea">
+                            <span class="fw-bold">Total a pagar</span>
+                            <span class="fw-bold">₡@Model.Total.ToString("N2")</span>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <p class="text-center text-muted small mt-5 mb-0 factura-gracias">
+                Gracias por su compra. Este documento es un comprobante de su transacción.
+            </p>
+        </div>
+    </div>
+</div>
+
+<style>
+    .factura-documento {
+        --accent-facturas: #6366f1;
+        --accent-facturas-oscuro: #4f46e5;
+        --accent-facturas-soft-15: rgba(99, 102, 241, 0.15);
+        border-radius: var(--radius-lg);
+        overflow: hidden;
+        max-width: 860px;
+        margin: 0 auto;
+    }
+
+    .text-factura {
+        color: var(--accent-facturas) !important;
+    }
+
+    .btn-factura {
+        background-color: var(--accent-facturas);
+        border: 1px solid var(--accent-facturas);
+        color: #ffffff;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        box-shadow: 0 0.25rem 0.5rem var(--accent-facturas-soft-15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-factura:hover,
+    .btn-factura:focus {
+        background-color: var(--accent-facturas-oscuro);
+        border-color: var(--accent-facturas-oscuro);
+        color: #ffffff;
+        transform: translateY(var(--lift-btn));
+    }
+
+    .btn-volver {
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+    }
+
+    .factura-documento-header {
+        background: #ffffff;
+        color: #212529;
+        padding: 1.5rem 1.75rem;
+        border-bottom: 2px solid var(--accent-facturas);
+    }
+
+    .factura-empresa {
+        font-size: 1.25rem;
+    }
+
+    .factura-titulo {
+        font-size: 1.5rem;
+        letter-spacing: 0.15em;
+        color: var(--accent-facturas-oscuro);
+    }
+
+    .factura-seccion {
+        color: var(--accent-facturas-oscuro);
+        border-bottom: 2px solid var(--accent-facturas-soft-15);
+        padding-bottom: 0.35rem;
+    }
+
+    .factura-dato {
+        margin-bottom: 0.35rem;
+    }
+
+    .factura-tabla thead th {
+        color: var(--accent-facturas-oscuro);
+        font-weight: 600;
+        background: rgba(99, 102, 241, 0.05);
+        border-bottom: 2px solid rgba(99, 102, 241, 0.25);
+    }
+
+    .factura-resumen {
+        min-width: 260px;
+        padding: 1rem 1.25rem;
+        border: 1px solid #e9ecef;
+        border-radius: var(--radius-md);
+        background: #f8f9fa;
+    }
+
+    .factura-total-linea {
+        border-top: 2px solid var(--accent-facturas);
+        padding-top: 0.75rem;
+        font-size: 1.1rem;
+        color: var(--accent-facturas-oscuro);
+    }
+
+    .factura-gracias {
+        border-top: 1px dashed #ced4da;
+        padding-top: 1rem;
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .btn-factura {
+            transition: none;
+        }
+
+        .btn-factura:hover {
+            transform: none;
+        }
+    }
+
+    @@media print {
+        .navbar,
+        .footer,
+        .no-imprimir {
+            display: none !important;
+        }
+
+        body {
+            background: #ffffff !important;
+        }
+
+        .factura-documento {
+            box-shadow: none !important;
+            border: 1px solid #dee2e6;
+            border-radius: 0;
+            max-width: 100%;
+        }
+
+        .factura-documento-header {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .factura-tabla thead th {
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+
+        .factura-resumen {
+            break-inside: avoid;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        window.print();
+    });
+</script>

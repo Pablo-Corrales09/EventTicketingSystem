@@ -67,9 +67,11 @@ namespace API.Services
 
             try
             {
-                //Valida que la localidad del evento exista y tenga disponibilidad suficiente.
                 var localidadEvento = await _context.EventoLocalidads
-                    .FirstOrDefaultAsync(el => el.IdEventoLocalidad == IdEventoLocalidad);
+                    .FromSqlRaw(
+                        "SELECT * FROM evento_localidad WITH (UPDLOCK, ROWLOCK) WHERE id_evento_localidad = {0}",
+                        IdEventoLocalidad)
+                    .FirstOrDefaultAsync();
 
                 if (localidadEvento == null)
                 {
@@ -81,7 +83,20 @@ namespace API.Services
                     throw new InvalidOperationException("No hay suficientes boletos disponibles en la localidad seleccionada.");
                 }
 
-                var fechaCompra = await AsignarFechaCompra(IdEventoLocalidad);
+                var datosEvento = await _context.EventoLocalidads
+                    .Where(el => el.IdEventoLocalidad == IdEventoLocalidad)
+                    .Select(el => new
+                    {
+                        el.IdEventoNavigation.NombreEvento,
+                        el.IdEventoNavigation.FechaEvento
+                    })
+                    .FirstOrDefaultAsync();
+
+                var prefijo = ObtenerPrefijo(datosEvento?.NombreEvento);
+
+                DateTime? fechaCompra = (datosEvento != null && DateTime.Now <= datosEvento.FechaEvento)
+                    ? DateTime.Now
+                    : null;
 
                 var facturaDto = new FacturaCreateDto
                 {
@@ -98,8 +113,7 @@ namespace API.Services
                     throw new Exception("No se pudo generar la factura.");
                 }
 
-                //Se genera el consecutivo base global para numerar los boletos de manera secuencial y única,
-                //evitando colisiones entre localidades del mismo evento (num_boleto es UNIQUE).
+                //Consecutivo base para numerar los boletos.
                 int consecutivoBase = await _context.Boletos.CountAsync();
 
                 for (int i = 0; i < cantidad; i++)
@@ -109,20 +123,19 @@ namespace API.Services
                         IdEventoLocalidad = IdEventoLocalidad,
                         IdUsuario = IdUsuario,
                         IdFactura = facturaCreada.IdFactura,
-                        NumBoleto = await CrearNumBoleto(IdEventoLocalidad, consecutivoBase + i + 1),
+                        NumBoleto = $"BOL-{prefijo}-{IdEventoLocalidad}-{consecutivoBase + i + 1}",
                         FechaCompra = fechaCompra
                     };
 
                     _context.Add(nuevoBoleto);
                 }
 
-                //Se decrementa la capacidad disponible de la localidad.
                 localidadEvento.CapacidadDisponible -= cantidad;
 
                 await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
 
-                return await _context.Boletos
+                return await ObtenerQueryBase()
                     .Where(b => b.IdFactura == facturaCreada.IdFactura)
                     .OrderBy(b => b.IdBoleto)
                     .Select(b => MapearBoletoDto(b))
@@ -135,6 +148,18 @@ namespace API.Services
             }
         }
 
+        //Método auxiliar que calcula el prefijo del número de boleto a partir del nombre del evento.
+        private static string ObtenerPrefijo(string? nombreEvento)
+        {
+            if (string.IsNullOrEmpty(nombreEvento))
+            {
+                return "XX";
+            }
+
+            return nombreEvento.Length >= 2
+                ? nombreEvento.Substring(0, 2).ToUpper()
+                : nombreEvento.ToUpper();
+        }
        
        //Método auxiliar que valida la fecha de compra: si no es mayor al evento asigna la fecha actual, si no, le asigna nulo.
        private async Task<DateTime?> AsignarFechaCompra(int IdEventoLocalidad)

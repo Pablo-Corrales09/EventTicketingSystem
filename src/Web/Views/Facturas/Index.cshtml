@@ -1,16 +1,21 @@
 @model List<Web.Models.FacturaViewModel>
 
 @{
-    ViewData["Title"] = ViewBag.EsAdmin == true ? "Gestión de Facturas" : "Mis Facturas";
+    ViewData["Title"] = ViewBag.EsAdmin == true ? "Reporte de facturación" : "Mis Facturas";
     var esAdmin = ViewBag.EsAdmin == true;
 }
 
-<div class="container mt-4">
-    <div class="mb-4">
-        <h1 class="fw-bold text-dark mb-0">@ViewData["Title"]</h1>
-        <p class="text-muted mb-0">
-            @(esAdmin ? "Consulta las facturas y los boletos relacionados." : "Consulta el historial de tus compras.")
-        </p>
+<div class="container mt-4 facturas-page">
+    <div class="page-hero mb-4">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="page-hero-icono"><i class="bi bi-receipt"></i></span>
+            <div>
+                <h1 class="page-hero-titulo">@ViewData["Title"]</h1>
+                <p class="page-hero-subtitulo">
+                    @(esAdmin ? "Consulta las facturas y los boletos relacionados." : "Consulta el historial de tus compras.")
+                </p>
+            </div>
+        </div>
     </div>
 
     @if (ViewBag.Error != null)
@@ -25,7 +30,7 @@
 
     @if (esAdmin)
     {
-        <form method="get" class="card card-body shadow-sm mb-4">
+        <form method="get" class="card card-body shadow-sm mb-4 factura-filtros">
             <div class="row g-2 align-items-end">
                 <div class="col-12 col-md-3">
                     <label class="form-label fw-semibold small mb-1">Número de factura</label>
@@ -48,11 +53,123 @@
                            class="form-control" placeholder="Nombre del evento" />
                 </div>
                 <div class="col-12 col-md-2 d-flex gap-2">
-                    <button type="submit" class="btn btn-primary flex-fill py-2">Buscar</button>
+                    <button type="submit" class="btn btn-factura flex-fill py-2">Buscar</button>
                     <a asp-action="Index" class="btn btn-outline-secondary py-2">Limpiar</a>
                 </div>
             </div>
         </form>
+    }
+
+    @if (esAdmin)
+    {
+        var reporte = ViewBag.Reporte as FacturasReporteViewModel;
+
+        if (reporte != null)
+        {
+            var periodo = ViewBag.RangoReporte as string ?? DateTime.Now.ToString("MMMM yyyy");
+
+            <section class="mb-4">
+                <h2 class="h5 fw-bold text-dark mb-3">
+                    <i class="bi bi-bar-chart-line me-2 text-factura"></i>Reporte de facturación
+                </h2>
+
+                <form method="get" class="card card-body shadow-sm mb-4 factura-filtros">
+                    <div class="row g-2 align-items-end">
+                        <div class="col-12 col-md-3">
+                            <label class="form-label fw-semibold small mb-1">Desde (mes)</label>
+                            <input type="month" name="reporteDesde" value="@ViewBag.ReporteDesde"
+                                   class="form-control" />
+                        </div>
+                        <div class="col-12 col-md-3">
+                            <label class="form-label fw-semibold small mb-1">Hasta (mes)</label>
+                            <input type="month" name="reporteHasta" value="@ViewBag.ReporteHasta"
+                                   class="form-control" />
+                        </div>
+                        <div class="col-12 col-md-3 d-flex gap-2">
+                            <button type="submit" class="btn btn-factura flex-fill py-2">Aplicar rango</button>
+                            <a asp-action="Index" class="btn btn-outline-secondary py-2">Limpiar</a>
+                        </div>
+                        <div class="col-12 col-md-3 d-flex justify-content-md-end">
+                            <a asp-action="ExportarExcel"
+                               asp-route-numeroFactura="@Context.Request.Query["numeroFactura"]"
+                               asp-route-fechaDesde="@Context.Request.Query["fechaDesde"]"
+                               asp-route-fechaHasta="@Context.Request.Query["fechaHasta"]"
+                               asp-route-nombreEvento="@Context.Request.Query["nombreEvento"]"
+                               asp-route-reporteDesde="@ViewBag.ReporteDesde"
+                               asp-route-reporteHasta="@ViewBag.ReporteHasta"
+                               class="btn btn-success py-2">
+                                <i class="bi bi-file-earmark-excel me-1"></i>Exportar a Excel
+                            </a>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="row g-3 mb-4">
+                    <div class="col-12 col-sm-4">
+                        <div class="card h-100 shadow-sm border-0 factura-reporte-tarjeta">
+                            <div class="card-body">
+                                <p class="small text-muted fw-semibold mb-1">Total facturado · @periodo</p>
+                                <p class="display-6 fw-bold text-factura mb-0">₡@reporte.TotalMes.ToString("N2")</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <div class="card h-100 shadow-sm border-0 factura-reporte-tarjeta">
+                            <div class="card-body">
+                                <p class="small text-muted fw-semibold mb-1">Facturas emitidas · @periodo</p>
+                                <p class="display-6 fw-bold mb-0">@reporte.FacturasMes</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-12 col-sm-4">
+                        <div class="card h-100 shadow-sm border-0 factura-reporte-tarjeta">
+                            <div class="card-body">
+                                <p class="small text-muted fw-semibold mb-1">Boletos vendidos · @periodo</p>
+                                <p class="display-6 fw-bold mb-0">@reporte.BoletosMes</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card shadow-sm border-0 mb-4 factura-reporte-tabla">
+                    <div class="card-header bg-white">
+                        <h3 class="h6 fw-bold text-dark mb-0">
+                            <i class="bi bi-ticket-perforated me-2 text-factura"></i>Boletos facturados por evento
+                        </h3>
+                    </div>
+                    <div class="card-body p-0">
+                        @if (reporte.Eventos.Count == 0)
+                        {
+                            <p class="text-muted text-center py-4 mb-0">No hay boletos facturados con los criterios indicados.</p>
+                        }
+                        else
+                        {
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle mb-0">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th scope="col">Evento</th>
+                                            <th scope="col" class="text-center">Boletos</th>
+                                            <th scope="col" class="text-end">Total facturado</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach (var evento in reporte.Eventos)
+                                        {
+                                            <tr>
+                                                <td class="fw-semibold">@evento.NombreEvento</td>
+                                                <td class="text-center">@evento.CantidadBoletos</td>
+                                                <td class="text-end fw-semibold text-success">₡@evento.TotalFacturado.ToString("N2")</td>
+                                            </tr>
+                                        }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            </section>
+        }
     }
 
     @if (Model.Count == 0)
@@ -65,17 +182,40 @@
     {
         @foreach (var factura in Model)
         {
+            var primerBoleto = factura.Boletos.FirstOrDefault();
+
             <div class="card factura-card shadow-sm mb-4 border-0">
-                <div class="card-header bg-dark text-white">
-                    <div class="row">
-                        <div class="col-12 col-sm-4">
-                            <strong>Factura:</strong> @factura.NumeroFactura
+                <div class="card-header factura-card-header bg-white">
+                    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <span class="factura-icono">
+                                <i class="bi bi-receipt"></i>
+                            </span>
+                            <div>
+                                <div class="small text-muted text-uppercase factura-etiqueta">Factura</div>
+                                <div class="fw-bold text-dark">@factura.NumeroFactura</div>
+                            </div>
                         </div>
-                        <div class="col-12 col-sm-4">
-                            <strong>Fecha:</strong> <time datetime="@factura.FechaFactura.ToString("yyyy-MM-dd")">@factura.FechaFactura.ToString("dd/MM/yyyy")</time>
+                        <a asp-action="Imprimir" asp-route-id="@factura.IdFactura"
+                           class="btn btn-outline-indigo btn-sm factura-btn-imprimir"
+                           title="Imprimir factura"
+                           aria-label="Imprimir factura @factura.NumeroFactura">
+                            <i class="bi bi-printer me-1"></i>Imprimir
+                        </a>
+                    </div>
+                </div>
+
+                <div class="factura-card-meta">
+                    <div class="row g-2">
+                        <div class="col-12 col-sm-6">
+                            <span class="text-muted small me-1">Fecha de emisión:</span>
+                            <span class="fw-semibold">
+                                <time datetime="@factura.FechaFactura.ToString("yyyy-MM-dd")">@factura.FechaFactura.ToString("dd/MM/yyyy")</time>
+                            </span>
                         </div>
-                        <div class="col-12 col-sm-4">
-                            <strong>Total:</strong> ₡@factura.Total.ToString("N2")
+                        <div class="col-12 col-sm-6 text-sm-end">
+                            <span class="text-muted small me-1">Total:</span>
+                            <span class="fw-bold factura-total">₡@factura.Total.ToString("N2")</span>
                         </div>
                     </div>
                 </div>
@@ -83,7 +223,6 @@
                 <div class="card-body">
                     @if (esAdmin)
                     {
-                        var primerBoleto = factura.Boletos.FirstOrDefault();
                         <p class="mb-3">
                             <strong>Cliente:</strong>
                             @if (primerBoleto != null)
@@ -105,38 +244,48 @@
                     }
                     else
                     {
-                        <ul class="list-group list-group-flush">
-                            @foreach (var boleto in factura.Boletos)
-                            {
-                                <li class="list-group-item">
-                                    <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
-                                        <div>
-                                            <a asp-controller="Boletos" asp-action="Details" asp-route-id="@boleto.IdBoleto" class="fw-semibold link-enlace">
-                                                @boleto.NumBoleto
-                                            </a>
-                                            <div class="text-muted small">
-                                                @boleto.NombreEvento · @boleto.NombreLocalidad
-                                            </div>
-                                            <div class="text-muted small">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0 factura-tabla-boletos">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">Boleto</th>
+                                        <th scope="col">Evento</th>
+                                        <th scope="col">Localidad</th>
+                                        <th scope="col">Fecha del evento</th>
+                                        <th scope="col" class="text-end">Precio</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var boleto in factura.Boletos)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <a asp-controller="Boletos" asp-action="Details" asp-route-id="@boleto.IdBoleto" class="fw-semibold link-enlace">
+                                                    @boleto.NumBoleto
+                                                </a>
+                                            </td>
+                                            <td>@boleto.NombreEvento</td>
+                                            <td class="text-muted">@boleto.NombreLocalidad</td>
+                                            <td class="text-muted">
                                                 @if (boleto.FechaEvento.HasValue)
                                                 {
                                                     <time datetime="@boleto.FechaEvento.Value.ToString("yyyy-MM-dd")">@boleto.FechaEvento.Value.ToString("dd/MM/yyyy")</time>
                                                 }
                                                 else
                                                 {
-                                                    <text>Fecha no disponible</text>
+                                                    <text>No disponible</text>
                                                 }
                                                 @if (boleto.HoraEvento.HasValue)
                                                 {
                                                     <text> · @boleto.HoraEvento.Value.ToString("HH:mm")</text>
                                                 }
-                                            </div>
-                                        </div>
-                                        <span class="fw-bold text-success">₡@boleto.Precio.ToString("N2")</span>
-                                    </div>
-                                </li>
-                            }
-                        </ul>
+                                            </td>
+                                            <td class="text-end fw-semibold text-factura">₡@boleto.Precio.ToString("N2")</td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
                     }
                 </div>
             </div>
@@ -145,23 +294,159 @@
 </div>
 
 <style>
+    .facturas-page {
+        --accent-facturas: #6366f1;
+        --accent-facturas-oscuro: #4f46e5;
+        --accent-facturas-soft-05: rgba(99, 102, 241, 0.05);
+        --accent-facturas-soft-10: rgba(99, 102, 241, 0.1);
+        --accent-facturas-soft-15: rgba(99, 102, 241, 0.15);
+        --accent-facturas-soft-25: rgba(99, 102, 241, 0.25);
+    }
+
+    .facturas-page .page-hero {
+        border-color: var(--accent-facturas-soft-15);
+    }
+
+    .facturas-page .page-hero-icono {
+        background: var(--accent-facturas-soft-10);
+        color: var(--accent-facturas);
+    }
+
+    .text-factura {
+        color: var(--accent-facturas) !important;
+    }
+
+    .btn-factura {
+        background-color: var(--accent-facturas);
+        border: 1px solid var(--accent-facturas);
+        color: #ffffff;
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        box-shadow: 0 0.25rem 0.5rem var(--accent-facturas-soft-15);
+        transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    }
+
+    .btn-factura:hover,
+    .btn-factura:focus {
+        background-color: var(--accent-facturas-oscuro);
+        border-color: var(--accent-facturas-oscuro);
+        color: #ffffff;
+        transform: translateY(var(--lift-btn));
+        box-shadow: 0 0.5rem 1rem var(--accent-facturas-soft-25);
+    }
+
+    .factura-filtros .form-control {
+        border-radius: var(--radius-sm);
+    }
+
+    .factura-filtros .form-control:focus {
+        box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem var(--accent-facturas);
+    }
+
     .factura-card {
         border-radius: var(--radius-md);
         overflow: hidden;
+        border-top: 3px solid var(--accent-facturas);
         transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .factura-card-header {
+        background: #ffffff;
+        border-bottom: none;
+        padding: 1rem 1.25rem;
+    }
+
+    .factura-icono {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-sm);
+        background: var(--accent-facturas-soft-10);
+        color: var(--accent-facturas);
+        font-size: 1.15rem;
+    }
+
+    .factura-etiqueta {
+        font-size: 0.7rem;
+        letter-spacing: 0.05em;
+    }
+
+    .factura-card-meta {
+        background: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        border-bottom: 1px solid #e9ecef;
+        padding: 0.6rem 1.25rem;
+    }
+
+    .factura-total {
+        font-size: 1.05rem;
+    }
+
+    .btn-outline-indigo {
+        background-color: #ffffff;
+        border: 1px solid var(--accent-facturas);
+        color: var(--accent-facturas);
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        transition: all 0.2s ease-in-out;
+    }
+
+    .btn-outline-indigo:hover,
+    .btn-outline-indigo:focus {
+        background-color: var(--accent-facturas);
+        border-color: var(--accent-facturas);
+        color: #ffffff;
+    }
+
+    .factura-btn-imprimir {
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        padding: 0.35rem 0.9rem;
+    }
+
+    .factura-tabla-boletos thead th {
+        color: var(--accent-facturas-oscuro);
+        font-weight: 600;
+        background: var(--accent-facturas-soft-05);
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .factura-reporte-tarjeta {
+        border-radius: var(--radius-md);
+        border-top: 3px solid var(--accent-facturas);
+        transition: transform 0.25s ease, box-shadow 0.25s ease;
+    }
+
+    .factura-reporte-tarjeta:hover {
+        transform: translateY(var(--lift-card));
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.08) !important;
+    }
+
+    .factura-reporte-tabla {
+        border-radius: var(--radius-md);
+        overflow: hidden;
+    }
+
+    .factura-reporte-tabla thead th {
+        color: var(--accent-facturas-oscuro);
     }
 
     .factura-card:hover {
         transform: translateY(var(--lift-card));
-        box-shadow: 0 1rem 2rem rgba(13, 110, 253, 0.12) !important;
+        box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.08) !important;
     }
 
     @@media (prefers-reduced-motion: reduce) {
-        .factura-card:hover {
+        .factura-card:hover,
+        .factura-reporte-tarjeta:hover {
             transform: none;
         }
 
-        .factura-card {
+        .factura-card,
+        .factura-reporte-tarjeta,
+        .btn-factura {
             transition: none;
         }
     }

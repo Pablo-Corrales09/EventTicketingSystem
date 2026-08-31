@@ -15,7 +15,7 @@
                 <div asp-validation-summary="All" class="alert alert-danger shadow-sm"></div>
             }
 
-            <form asp-action="Editar" asp-route-id="@Model.IdEvento" method="post" enctype="multipart/form-data" class="card evento-form card-body shadow-sm">
+            <form asp-action="Editar" asp-route-id="@Model.IdEvento" method="post" enctype="multipart/form-data" class="card admin-form card-body shadow-sm">
                 @Html.AntiForgeryToken()
                 <input type="hidden" asp-for="IdEvento" />
 
@@ -62,7 +62,7 @@
                     @if (!string.IsNullOrEmpty(Model.ImagenUrl))
                     {
                         <div class="mt-2">
-                            <img src="@Model.ImagenUrl" alt="Imagen actual del evento" class="img-thumbnail evento-form-preview" style="max-height: 120px;" />
+                            <img src="@Model.ImagenUrl" alt="Imagen actual del evento" class="img-thumbnail admin-form-preview" style="max-height: 120px;" />
                         </div>
                     }
                 </div>

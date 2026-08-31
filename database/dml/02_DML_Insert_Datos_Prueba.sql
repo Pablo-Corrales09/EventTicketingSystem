@@ -1,5 +1,14 @@
 -------------------------------------Inserción de datos en las tablas-------------------------------
 
+INSERT INTO role(nombre_role)
+VALUES
+('ADMIN'),
+('CLIENTE'),
+('Inactivo');
+GO
+
+SELECT * FROM role;
+
 INSERT INTO usuario(nombre, apellido, correo)
 VALUES
 ('Pablo', 'Corrales', 'pablo.corrales@correo.com'),
@@ -7,6 +16,8 @@ VALUES
 ('Cesar', 'Obando', 'cesar.obando@correo.com'),
 ('Alexis','Sanchez','alexis.sanchez@correo.com');
 GO
+
+
 
 INSERT INTO medio_pago(nombre_medio_pago)
 VALUES
@@ -22,6 +33,7 @@ VALUES
 ('Parque Central', 'Alajuela, Costa Rica'),
 ('Teatro Melico Salazar', 'San José, Costa Rica'),
 ('Estadio Ricardo Saprissa', 'San Juan de Tibás, Costa Rica');
+('Playa Tamarindo', 'Guanacaste, Costa Rica');
 GO
 
 INSERT INTO localidad(nombre_localidad, id_sede_evento)
@@ -67,7 +79,10 @@ VALUES
 (2, 3, 100000.00, 50),
 (3, 4, 25000.00, 200),
 (4, 5, 30000.00, 120);
+(8, 4, 15000.00, 200);
 GO
+
+
 
 INSERT INTO factura (id_usuario, id_medio_pago, numero_factura, total)
 VALUES
@@ -115,7 +130,7 @@ GO
 SELECT nombre_role FROM role;
 
 --Consulta para obtener la información completa de los usuarios.
-SELECT u.nombre + ' ' + u.apellido AS 'Nombre completo',
+SELECT u.id_usuario, u.nombre + ' ' + u.apellido AS 'Nombre completo',
 u.correo AS 'Correo electronico',
 u.telefono,
 r.nombre_role AS 'Rol'
@@ -142,7 +157,7 @@ INNER JOIN sede_evento n ON l.id_sede_evento = n.id_sede_evento;
 GO
 
 --Consulta para obtener la lista completa de los eventos.
-SELECT nombre_evento,
+SELECT id_evento,nombre_evento,
 CAST(fecha_evento AS DATE) AS 'fecha_evento',
 hora_evento
 FROM evento;
@@ -184,4 +199,32 @@ INNER JOIN evento e ON el.id_evento = e.id_evento
 INNER JOIN sede_evento s ON l.id_sede_evento = s.id_sede_evento
 INNER JOIN factura f ON b.id_factura = f.id_factura
 GO
+
+SELECT id_boleto, num_boleto
+FROM boleto
+WHERE fecha_compra IS NULL;
+GO
+
+
+INSERT INTO sede_evento(nombre_sede_evento, ubicacion)
+SELECT nombre, ubicacion
+FROM (VALUES
+    (N'Anfiteatro Coca-Cola',        N'San José, Costa Rica'),
+    (N'Centro de Convenciones',      N'Heredia, Costa Rica'),
+    (N'Estadio Morera Soto',         N'Alajuela, Costa Rica'),
+    (N'Teatro Nacional',             N'San José, Costa Rica'),
+    (N'Estadio Rosabal Cordero',     N'Heredia, Costa Rica'),
+    (N'Parque Viva',                 N'La Guácima, Costa Rica'),
+    (N'Auditorio Nacional',          N'San José, Costa Rica'),
+    (N'Estadio Fello Meza',          N'Cartago, Costa Rica'),
+    (N'Playa Jacó',                  N'Puntarenas, Costa Rica'),
+    (N'Recinto de Golfito',          N'Puntarenas, Costa Rica'),
+    (N'Plaza de la Cultura',         N'San José, Costa Rica'),
+    (N'Estadio Carlos Ugalde',       N'San Carlos, Costa Rica')
+) AS s(nombre, ubicacion)
+WHERE NOT EXISTS (
+    SELECT 1 FROM sede_evento se WHERE se.nombre_sede_evento = s.nombre
+);
+GO
+
 

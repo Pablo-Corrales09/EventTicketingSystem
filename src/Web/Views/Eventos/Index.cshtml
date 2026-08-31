@@ -4,22 +4,22 @@
     ViewData["Title"] = ViewBag.Titulo ?? "Eventos Disponibles";
 }
 
-<!-- Título de la vista añadido -->
 <div class="container my-4">
-    <div class="row mb-4">
-        <div class="col-12 text-center">
-            <h1 class="fw-bold text-primary display-5">
-                <i class="bi bi-calendar-event me-2"></i>@ViewData["Title"]
-            </h1>
-            <p class="text-muted">Explora nuestra cartelera, descubre las sedes y asegura tus entradas.</p>
-
-            @if (ViewBag.EsAdmin == true)
-            {
-                <a asp-action="Crear" class="btn btn-success mt-2 shadow-sm">
-                    <i class="bi bi-plus-circle me-1"></i> Crear Evento
-                </a>
-            }
+    <div class="page-hero mb-4">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="page-hero-icono"><i class="bi bi-calendar-event"></i></span>
+            <div>
+                <h1 class="page-hero-titulo">@ViewData["Title"]</h1>
+                <p class="page-hero-subtitulo">Explora nuestra cartelera, descubre las sedes y asegura tus entradas.</p>
+            </div>
         </div>
+
+        @if (ViewBag.EsAdmin == true)
+        {
+            <a asp-action="Crear" class="btn btn-success shadow-sm btn-hero-accion">
+                <i class="bi bi-plus-circle me-1"></i> Crear Evento
+            </a>
+        }
     </div>
 
     @if (ViewBag.Error != null)
@@ -67,19 +67,16 @@
                             </p>
 
                             <div class="d-flex gap-2">
-                                <button class="btn btn-outline-primary flex-fill btn-ver-detalles shadow-sm"
-                                        data-id="@evento.IdEvento"
-                                        data-bs-toggle="modal"
-                                        data-bs-target="#modalDetallesEvento">
-                                    <i class="bi bi-ticket-perforated me-1"></i> Ver Detalles y Comprar
-                                </button>
+                                <a asp-controller="Eventos" asp-action="Details" asp-route-id="@evento.IdEvento" class="evento-btn evento-btn-primario mt-auto w-100">
+                                    Ver detalles del evento
+                                </a>
 
                                 @if (ViewBag.EsAdmin == true)
                                 {
                                     <a asp-action="Editar" asp-route-id="@evento.IdEvento"
-                                       class="btn btn-outline-secondary shadow-sm"
-                                       title="Editar evento"
-                                       aria-label="Editar evento">
+                                    class="evento-btn evento-btn-rojo shadow-sm"
+                                    title="Editar evento"
+                                    aria-label="Editar evento">
                                         <i class="bi bi-pencil"></i>
                                     </a>
                                 }
@@ -299,3 +296,41 @@
         });
     });
 </script>
+
+<style>
+.evento-btn {
+    border-radius: var(--radius-pill);
+    padding: 0.6rem 1.25rem;
+    font-weight: 600;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0.25rem 0.5rem var(--accent-soft-15);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.evento-btn-primario {
+    background-color: #ffffff;
+    border: 1px solid var(--bs-primary, #0d6efd);
+    color: var(--bs-primary, #0d6efd);
+}
+
+.evento-btn-primario:hover {
+    background-color: var(--bs-primary, #0d6efd);
+    color: #ffffff;
+    border-color: var(--bs-primary, #0d6efd);
+}
+
+.evento-btn-rojo {
+    background-color: #ffffff;
+    border: 1px solid #dc3545;
+    color: #dc3545;
+}
+
+.evento-btn-rojo:hover {
+    background-color: #dc3545;
+    color: #ffffff;
+    border-color: #dc3545;
+}
+</style>

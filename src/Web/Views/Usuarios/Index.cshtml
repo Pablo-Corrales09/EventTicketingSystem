@@ -1,0 +1,485 @@
+@model List<Web.Models.UsuarioViewModel>
+
+@{
+    ViewData["Title"] = "Gestión de Usuarios";
+
+    var roles = Model
+        .Where(u => u.IdRole.HasValue && !string.IsNullOrWhiteSpace(u.NombreRole))
+        .GroupBy(u => u.IdRole!.Value)
+        .Select(g => g.First())
+        .OrderBy(u => u.NombreRole)
+        .ToList();
+
+    string Iniciales(UsuarioViewModel u)
+    {
+        var letras = (string.IsNullOrWhiteSpace(u.Nombre) ? "" : u.Nombre[0].ToString())
+                     + (string.IsNullOrWhiteSpace(u.Apellido) ? "" : u.Apellido[0].ToString());
+        return string.IsNullOrWhiteSpace(letras) ? "?" : letras.ToUpperInvariant();
+    }
+}
+
+<style>
+    .usuarios-table thead th {
+        background: var(--accent-soft-05);
+        color: #212529;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .usuarios-table tbody tr {
+        transition: background-color 0.2s ease;
+    }
+
+    .usuario-avatar {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 42px;
+        height: 42px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, #4f46e5 100%);
+        color: #ffffff;
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.02em;
+    }
+
+    .badge-rol-suave {
+        background: var(--accent-soft-10);
+        color: var(--accent);
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .badge-rol-inactivo {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .badge-estado-activo {
+        background: rgba(25, 135, 84, 0.1);
+        color: #198754;
+        font-weight: 600;
+    }
+
+    .badge-estado-inactivo {
+        background: rgba(220, 53, 69, 0.1);
+        color: #dc3545;
+        font-weight: 600;
+    }
+
+    .btn-usuario {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--radius-pill);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-usuario:hover {
+        transform: translateY(var(--lift-btn));
+        box-shadow: 0 0.4rem 0.9rem var(--accent-soft-25);
+    }
+
+    .btn-usuario.btn-outline-danger:hover {
+        box-shadow: 0 0.4rem 0.9rem rgba(220, 53, 69, 0.2);
+    }
+
+    .buscador-usuarios .input-group-text {
+        border-radius: var(--radius-pill) 0 0 var(--radius-pill);
+        color: #6c757d;
+        background: #fff;
+    }
+
+    .buscador-usuarios .form-control {
+        border-radius: 0 var(--radius-pill) var(--radius-pill) 0;
+    }
+
+    .buscador-usuarios .form-select {
+        border-radius: var(--radius-pill);
+    }
+
+    .btn-filtro {
+        border-radius: var(--radius-pill);
+        font-weight: 600;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .btn-filtro:hover {
+        transform: translateY(var(--lift-btn));
+        box-shadow: 0 0.4rem 0.9rem var(--accent-soft-25);
+    }
+
+    .paginacion .page-item .page-link {
+        border: none;
+        color: var(--accent);
+        font-weight: 600;
+        min-width: 40px;
+        text-align: center;
+        border-radius: var(--radius-pill);
+        margin: 0 0.15rem;
+        color: #495057;
+        transition: all 0.2s ease;
+    }
+
+    .paginacion .page-item.active .page-link {
+        background: var(--accent);
+        color: #ffffff;
+        box-shadow: 0 0.25rem 0.5rem var(--accent-soft-25);
+    }
+
+    .paginacion .page-item.disabled .page-link {
+        color: #adb5bd;
+    }
+
+    .paginacion .page-item:not(.disabled):not(.active) .page-link:hover {
+        background: var(--accent-soft-10);
+        color: var(--accent);
+    }
+
+    @@media (prefers-reduced-motion: reduce) {
+        .usuarios-table tbody tr,
+        .btn-usuario,
+        .btn-filtro,
+        .paginacion .page-item .page-link {
+            transition: none;
+        }
+
+        .btn-usuario:hover,
+        .btn-filtro:hover {
+            transform: none;
+            box-shadow: none;
+        }
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="page-hero mb-4">
+        <div class="d-flex align-items-center gap-3 flex-wrap">
+            <span class="page-hero-icono"><i class="bi bi-people-fill"></i></span>
+            <div>
+                <h1 class="page-hero-titulo">Gestión de Usuarios</h1>
+                <p class="page-hero-subtitulo">
+                    Administra las cuentas, roles y el estado de los usuarios del sistema.
+                </p>
+            </div>
+        </div>
+        <span class="usuario-chip">
+            <i class="bi bi-people-fill"></i>
+            <span>
+                <span id="contadorUsuarios">@Model.Count de @Model.Count</span> usuario@(Model.Count == 1 ? "" : "s")
+            </span>
+        </span>
+    </div>
+
+    @if (ViewBag.Error != null)
+    {
+        <div class="alert alert-danger shadow-sm">@ViewBag.Error</div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger shadow-sm">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Exito"] != null)
+    {
+        <div class="alert alert-success shadow-sm">@TempData["Exito"]</div>
+    }
+
+    @if (Model.Count == 0)
+    {
+        <div class="alert alert-info shadow-sm">
+            No hay usuarios registrados.
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm border-0 mb-3">
+            <div class="card-body py-3">
+                <div class="row g-2 align-items-end buscador-usuarios">
+                    <div class="col-12 col-md-6 col-lg-4">
+                        <label for="busquedaUsuario" class="visually-hidden">Buscar por nombre, correo o contacto</label>
+                        <div class="input-group">
+                            <span class="input-group-text"><i class="bi bi-search"></i></span>
+                            <input type="search" id="busquedaUsuario" class="form-control"
+                                   placeholder="Buscar por nombre, correo o contacto..." autocomplete="off" />
+                        </div>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                        <label for="filtroRol" class="visually-hidden">Filtrar por rol</label>
+                        <select id="filtroRol" class="form-select" aria-label="Filtrar por rol">
+                            <option value="">Todos los roles</option>
+                            @foreach (var rol in roles)
+                            {
+                                <option value="@rol.IdRole">@rol.NombreRole</option>
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                        <label for="filtroEstado" class="visually-hidden">Filtrar por estado</label>
+                        <select id="filtroEstado" class="form-select" aria-label="Filtrar por estado">
+                            <option value="">Todos los estados</option>
+                            <option value="activo">Activo</option>
+                            <option value="inactivo">Inactivo</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                        <label for="tamanoPagina" class="visually-hidden">Resultados por página</label>
+                        <select id="tamanoPagina" class="form-select" aria-label="Resultados por página">
+                            <option value="10">10 por página</option>
+                            <option value="25">25 por página</option>
+                            <option value="50" selected>50 por página</option>
+                            <option value="100">100 por página</option>
+                        </select>
+                    </div>
+
+                    <div class="col-12 col-sm-6 col-md-4 col-lg-2">
+                        <button type="button" id="limpiarFiltros" class="btn btn-outline-secondary btn-filtro w-100">
+                            <i class="bi bi-arrow-counterclockwise me-1"></i> Limpiar
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card shadow-sm border-0">
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0 usuarios-table">
+                    <thead>
+                        <tr>
+                            <th>Usuario</th>
+                            <th>Correo</th>
+                            <th>Teléfono</th>
+                            <th>Rol</th>
+                            <th>Estado</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var usuario in Model)
+                        {
+                            <tr data-busqueda="@($"{usuario.Nombre} {usuario.Apellido} {usuario.Correo} {usuario.Telefono}")"
+                                data-rol="@usuario.IdRole"
+                                data-estado="@(usuario.EsInactivo ? "inactivo" : "activo")">
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <span class="usuario-avatar" aria-hidden="true">@Iniciales(usuario)</span>
+                                        <div>
+                                            <span class="fw-semibold">@usuario.Nombre @usuario.Apellido</span>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@usuario.Correo</td>
+                                <td>@(string.IsNullOrWhiteSpace(usuario.Telefono) ? "—" : usuario.Telefono)</td>
+                                <td>
+                                    <span class="badge rounded-pill @(usuario.EsInactivo ? "badge-rol-inactivo" : "badge-rol-suave")">
+                                        @(usuario.NombreRole ?? "Sin rol")
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (usuario.EsInactivo)
+                                    {
+                                        <span class="badge rounded-pill badge-estado-inactivo">Inactivo</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge rounded-pill badge-estado-activo">Activo</span>
+                                    }
+                                </td>
+                                <td class="text-end">
+                                    <div class="d-flex justify-content-end gap-2">
+                                        <a asp-action="Editar" asp-route-id="@usuario.IdUsuario"
+                                           class="btn btn-outline-primary btn-usuario"
+                                           title="Editar usuario"
+                                           aria-label="Editar usuario">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+
+                                        @if (usuario.EsInactivo)
+                                        {
+                                            <form asp-action="Activar" asp-route-id="@usuario.IdUsuario" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-success btn-usuario"
+                                                        title="Activar usuario"
+                                                        aria-label="Activar usuario">
+                                                    <i class="bi bi-check-lg"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="Desactivar" asp-route-id="@usuario.IdUsuario" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <button type="submit" class="btn btn-outline-danger btn-usuario"
+                                                        title="Desactivar usuario"
+                                                        aria-label="Desactivar usuario">
+                                                    <i class="bi bi-slash-circle"></i>
+                                                </button>
+                                            </form>
+                                        }
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 px-3 py-3 border-top">
+                <span class="text-muted small" id="textoPaginacion"></span>
+                <nav aria-label="Paginación de usuarios">
+                    <ul class="pagination paginacion justify-content-center mb-0" id="paginacionUsuarios"></ul>
+                </nav>
+            </div>
+
+            <div id="sinResultados" class="d-none text-center text-muted py-4">
+                No se encontraron usuarios con los criterios seleccionados.
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            const busqueda = document.getElementById('busquedaUsuario');
+            const rol = document.getElementById('filtroRol');
+            const estado = document.getElementById('filtroEstado');
+            const tamano = document.getElementById('tamanoPagina');
+            const limpiar = document.getElementById('limpiarFiltros');
+            const filas = Array.from(document.querySelectorAll('.usuarios-table tbody tr'));
+            const sinResultados = document.getElementById('sinResultados');
+            const contador = document.getElementById('contadorUsuarios');
+            const textoPaginacion = document.getElementById('textoPaginacion');
+            const navPaginacion = document.getElementById('paginacionUsuarios');
+            const total = filas.length;
+            let paginaActual = 1;
+
+            function normalizar(texto) {
+                return (texto || '')
+                    .toLowerCase()
+                    .normalize('NFD')
+                    .replace(/[\u0300-\u036f]/g, '');
+            }
+
+            function filasFiltradas() {
+                const q = normalizar(busqueda.value.trim());
+                const r = rol.value;
+                const e = estado.value;
+
+                return filas.filter(function (fila) {
+                    const coincideTexto = !q || normalizar(fila.dataset.busqueda).includes(q);
+                    const coincideRol = !r || fila.dataset.rol === r;
+                    const coincideEstado = !e || fila.dataset.estado === e;
+                    return coincideTexto && coincideRol && coincideEstado;
+                });
+            }
+
+            function construirPaginacion(visibles) {
+                const tamanoPagina = parseInt(tamano.value, 10);
+                const totalPaginas = Math.max(1, Math.ceil(visibles.length / tamanoPagina));
+                paginaActual = Math.min(paginaActual, totalPaginas);
+
+                const inicio = (paginaActual - 1) * tamanoPagina;
+                const fin = Math.min(inicio + tamanoPagina, visibles.length);
+
+                filas.forEach(fila => fila.classList.add('d-none'));
+                visibles.slice(inicio, fin).forEach(fila => fila.classList.remove('d-none'));
+
+                if (visibles.length === 0) {
+                    contador.textContent = '0 de ' + total;
+                    textoPaginacion.textContent = 'Sin resultados';
+                } else {
+                    contador.textContent = (inicio + 1) + '–' + fin + ' de ' + total;
+                    textoPaginacion.textContent = 'Mostrando ' + (inicio + 1) + '–' + fin + ' de ' + visibles.length + ' resultado' + (visibles.length === 1 ? '' : 's');
+                }
+
+                navPaginacion.innerHTML = '';
+
+                const crearItem = function (etiqueta, pagina, deshabilitado, activo) {
+                    const li = document.createElement('li');
+                    li.className = 'page-item' + (activo ? ' active' : '') + (deshabilitado ? ' disabled' : '');
+
+                    const a = document.createElement('a');
+                    a.className = 'page-link';
+                    a.href = '#';
+                    a.setAttribute('aria-label', etiqueta);
+                    a.innerHTML = etiqueta;
+
+                    if (!deshabilitado) {
+                        a.addEventListener('click', function (ev) {
+                            ev.preventDefault();
+                            if (pagina === paginaActual) return;
+                            paginaActual = pagina;
+                            construirPaginacion(visibles);
+                        });
+                    }
+
+                    li.appendChild(a);
+                    return li;
+                };
+
+                navPaginacion.appendChild(crearItem('&laquo;', paginaActual - 1, paginaActual === 1, false));
+
+                const maxPaginas = 5;
+                const mitad = Math.floor(maxPaginas / 2);
+                let desde = Math.max(1, paginaActual - mitad);
+                let hasta = Math.min(totalPaginas, desde + maxPaginas - 1);
+                desde = Math.max(1, hasta - maxPaginas + 1);
+
+                for (let i = desde; i <= hasta; i++) {
+                    navPaginacion.appendChild(crearItem(i, i, false, i === paginaActual));
+                }
+
+                navPaginacion.appendChild(crearItem('&raquo;', paginaActual + 1, paginaActual === totalPaginas, false));
+
+                sinResultados.classList.toggle('d-none', visibles.length > 0);
+            }
+
+            function aplicarFiltros() {
+                const visibles = filasFiltradas();
+                construirPaginacion(visibles);
+            }
+
+            busqueda.addEventListener('input', function () {
+                paginaActual = 1;
+                aplicarFiltros();
+            });
+
+            rol.addEventListener('change', function () {
+                paginaActual = 1;
+                aplicarFiltros();
+            });
+
+            estado.addEventListener('change', function () {
+                paginaActual = 1;
+                aplicarFiltros();
+            });
+
+            tamano.addEventListener('change', function () {
+                paginaActual = 1;
+                aplicarFiltros();
+            });
+
+            limpiar.addEventListener('click', function () {
+                busqueda.value = '';
+                rol.value = '';
+                estado.value = '';
+                paginaActual = 1;
+                aplicarFiltros();
+            });
+
+            aplicarFiltros();
+        })();
+    </script>
+}

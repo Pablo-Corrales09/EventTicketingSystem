@@ -5,13 +5,6 @@ CREATE TABLE role (
 );
 GO
 
-UPDATE [usuario]
-SET id_role = 1
-WHERE correo = 'pablo.prueba@correo.com';
-GO
-
-
-
 CREATE TABLE usuario (
     id_usuario INT IDENTITY(1,1),
     nombre NVARCHAR(50) NOT NULL,
@@ -49,6 +42,8 @@ CREATE TABLE evento(
     CONSTRAINT PK_evento PRIMARY KEY(id_evento)
 );
 GO
+
+
 
 //Agrega columna para el manejo de las imagenes.
 ALTER TABLE evento

@@ -1,0 +1,68 @@
+@model Web.Models.UsuarioEdicionViewModel
+
+@{
+    ViewData["Title"] = "Editar Usuario";
+}
+
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-6">
+            <h1 class="fw-bold text-dark mb-1">Editar Usuario</h1>
+            <p class="text-muted mb-4">Actualiza los datos y el rol del usuario.</p>
+
+            @if (!ViewData.ModelState.IsValid)
+            {
+                <div asp-validation-summary="All" class="alert alert-danger shadow-sm"></div>
+            }
+
+            <form asp-action="Editar" asp-route-id="@Model.IdUsuario" method="post" class="card admin-form card-body shadow-sm">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label asp-for="Nombre" class="form-label fw-semibold"></label>
+                    <input asp-for="Nombre" class="form-control" placeholder="Nombre" />
+                    <span asp-validation-for="Nombre" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Apellido" class="form-label fw-semibold"></label>
+                    <input asp-for="Apellido" class="form-control" placeholder="Apellido" />
+                    <span asp-validation-for="Apellido" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Correo" class="form-label fw-semibold"></label>
+                    <input asp-for="Correo" class="form-control" placeholder="correo@ejemplo.com" />
+                    <span asp-validation-for="Correo" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Telefono" class="form-label fw-semibold"></label>
+                    <input asp-for="Telefono" class="form-control" placeholder="8-XXXX-XXXX" />
+                    <span asp-validation-for="Telefono" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-4">
+                    <label asp-for="IdRole" class="form-label fw-semibold"></label>
+                    <select asp-for="IdRole" class="form-select">
+                        <option value="">-- Selecciona un rol --</option>
+                        @foreach (var rol in Model.Roles)
+                        {
+                            <option value="@rol.IdRole">@rol.NombreRole</option>
+                        }
+                    </select>
+                    <span asp-validation-for="IdRole" class="text-danger small"></span>
+                </div>
+
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-primary flex-fill py-2">Guardar Cambios</button>
+                    <a asp-action="Index" class="btn btn-outline-secondary py-2">Cancelar</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

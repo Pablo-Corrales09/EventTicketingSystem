@@ -28,6 +28,11 @@ namespace API.Services
             }
             bool esValida = BCrypt.Net.BCrypt.Verify(dto.Contrasena ?? string.Empty, usuario.PasswordHash);
             
+            if (esValida && usuario.IdRoleNavigation?.NombreRole?.Equals("Inactivo", StringComparison.OrdinalIgnoreCase) == true)
+            {
+                return null; // El usuario está desactivado, no se permite el acceso.
+            }
+
             if (esValida)
             {
                 return usuario; // Retorna el usuario completo si la contraseña es correcta

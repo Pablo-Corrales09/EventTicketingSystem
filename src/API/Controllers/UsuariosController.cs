@@ -49,5 +49,32 @@ namespace API.Controllers
             
             return CreatedAtAction(nameof(GetUsuario), new { id = usuarioCreado.IdUsuario }, usuarioCreado);
         }
+
+        [HttpGet("roles")]
+        public async Task<ActionResult<IEnumerable<RoleDto>>> GetRoles()
+        {
+            return Ok(await _userService.ObtenerRolesAsync());
+        }
+
+        [HttpPut("actualizar/{id}")]
+        public async Task<ActionResult<UsuarioDto>> ActualizarUsuario(int id, [FromBody] UsuarioActualizarDto request)
+        {
+            var usuarioActualizado = await _userService.ActualizarUsuarioAsync(id, request);
+            return usuarioActualizado == null ? NotFound() : Ok(usuarioActualizado);
+        }
+
+        [HttpPut("desactivar/{id}")]
+        public async Task<ActionResult<UsuarioDto>> DesactivarUsuario(int id)
+        {
+            var usuarioDesactivado = await _userService.DesactivarUsuarioAsync(id);
+            return usuarioDesactivado == null ? NotFound() : Ok(usuarioDesactivado);
+        }
+
+        [HttpPut("activar/{id}")]
+        public async Task<ActionResult<UsuarioDto>> ActivarUsuario(int id)
+        {
+            var usuarioActivado = await _userService.ActivarUsuarioAsync(id);
+            return usuarioActivado == null ? NotFound() : Ok(usuarioActivado);
+        }
     }
 }
